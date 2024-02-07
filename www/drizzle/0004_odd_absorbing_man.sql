@@ -1,0 +1,1 @@
+ALTER TABLE "attendee_to_spotify_artists" ALTER COLUMN "updated_at" SET DEFAULT now();
