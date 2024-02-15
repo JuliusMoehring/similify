@@ -1,0 +1,27 @@
+{
+  "name": "database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "db:generate": "drizzle-kit generate:pg",
+    "db:push": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "bun run ./src/seed.ts",
+    "format": "prettier --write './src/**/*.{js,ts,json}'",
+    "lint": "eslint --ext .ts .",
+    "lint:fix": "eslint --ext .ts . --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.8.1",
+    "@t3-oss/env-nextjs": "^0.7.1",
+    "drizzle-orm": "^0.29.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.9",
+    "eslint": "^8.54.0",
+    "prettier": "^3.2.5"
+  }
+}

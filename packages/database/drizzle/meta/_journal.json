@@ -1,0 +1,34 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1708077255855,
+      "tag": "0000_perpetual_the_twelve",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1708078754487,
+      "tag": "0001_fearless_expediter",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1708098961920,
+      "tag": "0002_flawless_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1708106910214,
+      "tag": "0003_sudden_the_leader",
+      "breakpoints": true
+    }
+  ]
+}

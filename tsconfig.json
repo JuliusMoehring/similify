@@ -1,3 +1,5 @@
 {
-  "extends": "@repo/typescript-config/base.json"
+  "extends": "ts-config/base.json",
+  "include": ["reset.d.ts", "prettier.config.mjs"],
+  "exclude": ["node_modules"]
 }
