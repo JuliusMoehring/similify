@@ -1,4 +1,4 @@
-import { type RefObject, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 function calculateHeight(ref: RefObject<HTMLDivElement>, offset: number) {
     if (!ref.current) {

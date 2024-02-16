@@ -2,8 +2,8 @@ import {
     adjectives,
     animals,
     colors,
-    type Config,
     uniqueNamesGenerator,
+    type Config,
 } from "unique-names-generator";
 
 const config: Config = {

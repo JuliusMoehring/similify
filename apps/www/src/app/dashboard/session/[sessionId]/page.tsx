@@ -5,12 +5,16 @@ import { SessionAttendees } from "~/components/session/session-attendees";
 import { SessionQuestions } from "~/components/session/session-questions";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
+import { useAdminSocket } from "~/contexts/admin-socket";
 import { useHandleTRPCError } from "~/hooks/use-handle-trpc-error";
 import { SEARCH_PARAMS } from "~/lib/search-params";
 import { SESSION_TYPE } from "~/lib/session-type";
 import { api } from "~/trpc/react";
 
 export default function Session({ params }: { params: { sessionId: string } }) {
+    const { isConnected } = useAdminSocket();
+
+    console.log(isConnected);
     const sessionId = params.sessionId;
 
     const sessionQuery = api.session.getSession.useQuery({
@@ -48,7 +52,7 @@ export default function Session({ params }: { params: { sessionId: string } }) {
             <div className="space-y-2">
                 <Label>Invite link</Label>
 
-                <div className="border-input flex h-9 w-full items-center justify-between rounded-md border bg-transparent py-1 pl-3 text-sm shadow-sm">
+                <div className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent py-1 pl-3 text-sm shadow-sm">
                     <pre className="line-clamp-1 overflow-hidden">
                         {inviteLink}
                     </pre>

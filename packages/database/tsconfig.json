@@ -1,0 +1,21 @@
+{
+  "extends": "ts-config/base.json",
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    },
+    "strictNullChecks": true
+  }
+}

@@ -1,16 +1,16 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
+import {
+    attendeeToSpotifyArtists,
+    attendeeToSpotifyGenres,
+    attendeeToSpotifyTracks,
+    spotifyArtists,
+    spotifyGenres,
+    spotifyTracks,
+} from "database";
 import { z } from "zod";
 
 import { env } from "~/env";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import {
-    spotifyTracks,
-    attendeeToSpotifyTracks,
-    spotifyArtists,
-    attendeeToSpotifyArtists,
-    spotifyGenres,
-    attendeeToSpotifyGenres,
-} from "database";
 
 export const spotifyRouter = createTRPCRouter({
     loadTopTracks: publicProcedure

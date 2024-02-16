@@ -1,12 +1,11 @@
 import { TRPCError } from "@trpc/server";
-
+import { and, eq } from "database";
+import { attendees, sessions } from "database/src/schema/session";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { sessions, attendees } from "database/src/schema/session";
-import { eq, and } from "database";
 import { SESSION_STATUS } from "~/lib/session-status";
 import { SessionTypeSchema } from "~/lib/session-type";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const sessionRouter = createTRPCRouter({
     getSessions: protectedProcedure.query(async ({ ctx }) => {

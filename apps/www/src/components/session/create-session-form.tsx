@@ -1,10 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import {
+    SESSION_TYPE,
+    SESSION_TYPE_DESCRIPTIONS,
+    SessionTypeSchema,
+    SessionTypeType,
+} from "~/lib/session-type";
+import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { Button } from "../ui/button";
 import {
@@ -25,14 +33,6 @@ import {
     SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import { useRouter } from "next/navigation";
-import {
-    SESSION_TYPE,
-    SESSION_TYPE_DESCRIPTIONS,
-    SessionTypeSchema,
-    SessionTypeType,
-} from "~/lib/session-type";
-import { cn } from "~/lib/utils";
 
 const CreateSessionFormSchema = z.object({
     name: z.string().min(3, {

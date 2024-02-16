@@ -1,5 +1,6 @@
-import { usePathname, useSearchParams } from "next/navigation";
 import { MessageCircleQuestionIcon } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+
 import { InternalLinkButton } from "~/components/ui/link-button";
 import { SEARCH_PARAMS } from "~/lib/search-params";
 
@@ -14,7 +15,7 @@ export function EmptyQuestions() {
 
     return (
         <div className="flex h-64 w-full flex-col items-center justify-center space-y-2 rounded outline-dashed outline-1">
-            <MessageCircleQuestionIcon className="text-muted h-10 w-10" />
+            <MessageCircleQuestionIcon className="h-10 w-10 text-muted" />
 
             <p className="max-w-96 px-4 text-center">
                 You have not added any questions yet. Change to{" "}

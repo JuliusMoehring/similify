@@ -4,8 +4,8 @@ import {
     type UseTRPCQueryResult,
 } from "@trpc/react-query/shared";
 import {
-    type ProcedureParams,
     type Procedure,
+    type ProcedureParams,
     type ProcedureType,
 } from "@trpc/server";
 import { useEffect } from "react";

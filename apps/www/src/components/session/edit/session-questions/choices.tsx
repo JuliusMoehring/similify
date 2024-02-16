@@ -1,5 +1,8 @@
-import { CUSTOM_QUESTION_TYPE } from "~/lib/custom-question-type";
+import { TrashIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "lucide-react";
 import { useFieldArray } from "react-hook-form";
+
+import { Button } from "~/components/ui/button";
 import {
     FormControl,
     FormField,
@@ -7,10 +10,8 @@ import {
     FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { TrashIcon } from "@radix-ui/react-icons";
-import { Button } from "~/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { Label } from "~/components/ui/label";
+import { CUSTOM_QUESTION_TYPE } from "~/lib/custom-question-type";
 import { useSessionQuestion } from "../context";
 
 export function SessionQuestionChoices() {

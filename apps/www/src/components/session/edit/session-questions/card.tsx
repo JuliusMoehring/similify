@@ -1,10 +1,11 @@
-import { Card } from "~/components/ui/card";
-import { SessionQuestionChoices } from "./choices";
-import { Button } from "~/components/ui/button";
 import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
+import { useSessionQuestion } from "../context";
+import { SessionQuestionChoices } from "./choices";
 import { SessionQuestionQuestion } from "./question";
 import { SessionQuestionType } from "./type";
-import { useSessionQuestion } from "../context";
 
 export function SessionQuestionCard() {
     const { index: questionIndex, handlers } = useSessionQuestion();

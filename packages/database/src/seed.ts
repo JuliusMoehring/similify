@@ -1,9 +1,3 @@
-
-
-async function seed() {
-
-}
+async function seed() {}
 
 seed();
-
-
