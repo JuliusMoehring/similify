@@ -3,7 +3,7 @@ import { z } from "zod";
 export const SESSION_TYPE = {
     CUSTOM: "custom",
     SPOTIFY: "spotify",
-};
+} as const;
 
 export const SessionTypeSchema = z.enum([
     SESSION_TYPE.CUSTOM,

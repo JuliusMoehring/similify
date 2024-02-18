@@ -1,11 +1,24 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "database";
 import { attendees, sessions } from "database/src/schema/session";
-import { z } from "zod";
+import { ZodError, z } from "zod";
 
-import { SESSION_STATUS } from "~/lib/session-status";
+import { SESSION_STATUS, SessionStatusSchema } from "~/lib/session-status";
 import { SessionTypeSchema } from "~/lib/session-type";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { NeonDbError } from "@neondatabase/serverless";
+import { ERROR_MAP } from "~/lib/error-map";
+
+const GetSessionResponseSchema = z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string(),
+    status: SessionStatusSchema,
+    type: SessionTypeSchema,
+    creatorId: z.string(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+});
 
 export const sessionRouter = createTRPCRouter({
     getSessions: protectedProcedure.query(async ({ ctx }) => {
@@ -53,10 +66,19 @@ export const sessionRouter = createTRPCRouter({
                     });
                 }
 
-                return session;
+                return GetSessionResponseSchema.parse(session);
             } catch (error) {
+                console.error(error);
+
                 if (error instanceof TRPCError) {
                     throw error;
+                }
+
+                if (error instanceof ZodError) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Invalid session data.",
+                    });
                 }
 
                 throw new TRPCError({
@@ -235,6 +257,13 @@ export const sessionRouter = createTRPCRouter({
 
                 return insertedAttendee.id;
             } catch (error) {
+                if (error instanceof NeonDbError && error.code === "23505") {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: ERROR_MAP.USERNAME_ALREADY_TAKEN,
+                    });
+                }
+
                 if (error instanceof TRPCError) {
                     throw error;
                 }
@@ -278,6 +307,56 @@ export const sessionRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
                     message: "Could not unattend session.",
+                });
+            }
+        }),
+
+    updateSessionStatus: protectedProcedure
+        .input(
+            z.object({
+                sessionId: z.string().uuid(),
+                status: SessionStatusSchema,
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { db, session } = ctx;
+            const { sessionId, status } = input;
+            const userId = session.userId;
+
+            try {
+                const session = await db.query.sessions.findFirst({
+                    where: (session) =>
+                        and(
+                            eq(session.id, sessionId),
+                            eq(session.creatorId, userId),
+                        ),
+                });
+
+                if (!session) {
+                    throw new TRPCError({
+                        code: "NOT_FOUND",
+                        message: "Session not found.",
+                    });
+                }
+
+                await db
+                    .update(sessions)
+                    .set({
+                        status,
+                    })
+                    .where(eq(sessions.id, sessionId));
+
+                return true;
+            } catch (error) {
+                console.error(error);
+
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Could not update session status.",
                 });
             }
         }),

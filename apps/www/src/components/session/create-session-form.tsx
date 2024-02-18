@@ -75,7 +75,6 @@ export function CreateSessionForm() {
         defaultValues: {
             name: "",
             description: "",
-            type: "",
         },
     });
 
@@ -149,7 +148,7 @@ export function CreateSessionForm() {
                         control={form.control}
                         name="type"
                         render={({ field }) => {
-                            const isPlaceholder = field.value === "";
+                            const isPlaceholder = field.value === undefined;
 
                             return (
                                 <FormItem>

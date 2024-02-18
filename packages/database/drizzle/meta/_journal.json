@@ -29,6 +29,20 @@
       "when": 1708106910214,
       "tag": "0003_sudden_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1708368309346,
+      "tag": "0004_early_the_captain",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1708369182291,
+      "tag": "0005_far_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { index, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, pgTable, timestamp, uuid, numeric } from "drizzle-orm/pg-core";
 
 import { attendees, sessions } from "./session";
 
@@ -18,6 +18,11 @@ export const similarities = pgTable(
         similarAttendeeId: uuid("similar_attendee_id")
             .notNull()
             .references(() => attendees.id),
+
+        similarityValue: numeric("similarity_value", {
+            precision: 11,
+            scale: 10,
+        }).notNull(),
 
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at").defaultNow().notNull(),

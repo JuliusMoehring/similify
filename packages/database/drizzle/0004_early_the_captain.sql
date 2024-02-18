@@ -1,0 +1,1 @@
+ALTER TABLE "similarities" ADD COLUMN "similarity_value" numeric(10) NOT NULL;

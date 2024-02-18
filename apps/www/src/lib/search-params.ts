@@ -4,6 +4,7 @@ import { z } from "zod";
 export const SEARCH_PARAMS = {
     SESSION_ID: "sessionId",
     CODE: "code",
+    SPOTIFY_AUTHORIZATION_ERROR: "error",
     EDIT_MODE: "editMode",
 } as const;
 
@@ -45,6 +46,16 @@ export function validateCode(searchParams: ReturnType<typeof useSearchParams>) {
     const code = searchParams.get(SEARCH_PARAMS.CODE);
 
     return validateSearchParam(code, CodeSchema);
+}
+
+const SpotifyAuthorizationErrorSchema = z.string().nullable();
+
+export function validateSpotifyAuthorizationError(
+    searchParams: ReturnType<typeof useSearchParams>,
+) {
+    const error = searchParams.get(SEARCH_PARAMS.SPOTIFY_AUTHORIZATION_ERROR);
+
+    return validateSearchParam(error, SpotifyAuthorizationErrorSchema);
 }
 
 const EditModeSchema = z.coerce.boolean().default(false);

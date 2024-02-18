@@ -1,0 +1,1 @@
+ALTER TABLE "similarities" ALTER COLUMN "similarity_value" SET DATA TYPE numeric(11, 10);

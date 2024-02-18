@@ -5,6 +5,7 @@ import { env } from "./env";
 import * as custom from "./schema/custom";
 import * as session from "./schema/session";
 import * as spotify from "./schema/spotify";
+import * as similarity from "./schema/similarity";
 
 export const sql = neon(env.POSTGRES_URL);
 
@@ -13,6 +14,7 @@ export const db = drizzle(sql, {
         ...session,
         ...spotify,
         ...custom,
+        ...similarity,
     },
 });
 
