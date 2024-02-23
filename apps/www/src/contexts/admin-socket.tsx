@@ -6,7 +6,7 @@ import {
     useState,
     type PropsWithChildren,
 } from "react";
-import { SOCKET_EVENT } from "socket";
+import { SOCKET_EVENT } from "socket/src/client";
 import { io, Socket } from "socket.io-client";
 
 import { env } from "~/env";

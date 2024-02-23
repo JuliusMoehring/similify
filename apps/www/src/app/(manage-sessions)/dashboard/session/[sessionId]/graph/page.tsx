@@ -10,9 +10,14 @@ export default function SessionGraphPage({
 }) {
     const sessionId = params.sessionId;
 
-    const similaritiesQuery = api.similarity.getSessionSimilarities.useQuery({
-        sessionId,
-    });
+    const similaritiesQuery = api.similarity.getSessionSimilarities.useQuery(
+        {
+            sessionId,
+        },
+        {
+            staleTime: 1000 * 60,
+        },
+    );
 
     if (similaritiesQuery.isLoading) {
         return null;

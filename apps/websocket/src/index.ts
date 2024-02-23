@@ -2,7 +2,8 @@ import { createServer } from "node:http";
 import { db, eq } from "database";
 import express from "express";
 import getPort, { portNumbers } from "get-port";
-import { SOCKET_EVENT } from "socket";
+import { SOCKET_EVENT } from "socket/src/client";
+import { ActiveSessionHandler } from "socket/src/server";
 import { Server } from "socket.io";
 import { z, ZodError } from "zod";
 
@@ -113,50 +114,14 @@ adminIO.on("connection", (socket) => {
                 throw new Error("Session not found");
             }
 
-            const questions = await db.query.customQuestions.findMany({
-                columns: {
-                    id: true,
-                    question: true,
-                    type: true,
-                    order: true,
-                },
-                with: {
-                    options: {
-                        columns: { id: true, option: true },
-                    },
-                },
-                where: (question) => eq(question.sessionId, sessionId),
-                orderBy: (question, { asc }) => [asc(question.order)],
-            });
+            const activeSessionHandler = new ActiveSessionHandler(
+                sessionId,
+                interval,
+            );
 
-            let nodeJSTimeout: NodeJS.Timeout | null = null;
-            let currentQuestionIndex = 0;
+            await activeSessionHandler.init();
 
-            nodeJSTimeout = setInterval(() => {
-                if (currentQuestionIndex >= questions.length) {
-                    clearInterval(nodeJSTimeout!);
-                    nodeJSTimeout = null;
-
-                    publicIO
-                        .to(sessionId)
-                        .emit(SOCKET_EVENT.NEXT_QUESTION, null);
-                    return;
-                }
-
-                publicIO
-                    .to(sessionId)
-                    .emit(
-                        SOCKET_EVENT.NEXT_QUESTION,
-                        questions[currentQuestionIndex],
-                    );
-                currentQuestionIndex++;
-            }, interval * 1000);
-
-            socket.join(sessionId);
-
-            socket.emit(SOCKET_EVENT.START_SESSION, {
-                status: "ok",
-            });
+            activeSessionHandler.startSession(socket, publicIO);
         } catch (error) {
             console.error("Failed to start session", error);
 

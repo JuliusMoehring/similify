@@ -359,6 +359,12 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
         version: 0.7.3(typescript@5.3.3)(zod@3.22.4)
+      database:
+        specifier: workspace:*
+        version: link:../database
+      socket.io:
+        specifier: ^4.7.4
+        version: 4.7.4
       zod:
         specifier: ^3.22.4
         version: 3.22.4
