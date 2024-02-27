@@ -1,7 +1,8 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { eq } from "database";
 import { TRPCError } from "@trpc/server";
+import { eq } from "database";
+import { z } from "zod";
+
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const similarityRouter = createTRPCRouter({
     getSessionSimilarities: publicProcedure

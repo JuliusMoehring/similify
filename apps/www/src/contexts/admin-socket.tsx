@@ -6,22 +6,32 @@ import {
     useState,
     type PropsWithChildren,
 } from "react";
-import { SOCKET_EVENT } from "socket/src/client";
 import { io, Socket } from "socket.io-client";
+import {
+    SOCKET_EVENT,
+    NextQuestionMessageSchema,
+    QuestionType,
+} from "socket/src/client";
 
 import { env } from "~/env";
 import { api } from "~/trpc/react";
+import { toast } from "sonner";
 
 type AdminSocketContextType = {
     isConnected: boolean;
-    startSession: (sessionId: string, interval?: number) => void;
+    startSession: (sessionId: string) => void;
+    nextQestion: (sessionId: string) => void;
     endSession: (sessionId: string) => void;
+    currentQuestion: QuestionType | null;
 };
 
 const AdminSocketContext = createContext<AdminSocketContextType | null>(null);
 
 export function AdminSocketProvider({ children }: PropsWithChildren) {
     const [isConnected, setIsConnected] = useState(false);
+    const [currentQuestion, setCurrentQuestion] = useState<QuestionType | null>(
+        null,
+    );
 
     const socketRef = useRef<Socket | null>(null);
 
@@ -36,6 +46,33 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
             setIsConnected(false);
         };
 
+        const handleNextQuestion = (data: unknown) => {
+            try {
+                const nextQuestionMessage =
+                    NextQuestionMessageSchema.parse(data);
+
+                if (nextQuestionMessage.status === "ok") {
+                    setCurrentQuestion(nextQuestionMessage.question);
+                    toast.success("Next question has been sent", {
+                        description:
+                            "All attendees will now see the next question.",
+                    });
+                }
+
+                if (nextQuestionMessage.status === "error") {
+                    throw new Error(
+                        JSON.stringify(nextQuestionMessage.error, null, 2),
+                    );
+                }
+            } catch (error) {
+                console.error(error);
+
+                toast.error("Failed to get next question", {
+                    description: JSON.stringify(error, null, 2),
+                });
+            }
+        };
+
         const connect = async () => {
             const apiToken = await getAPITokenMutation.mutateAsync();
 
@@ -47,20 +84,37 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
 
             socketRef.current.on("connect", onConnect);
             socketRef.current.on("disconnect", onDisconnect);
+            socketRef.current.on(
+                SOCKET_EVENT.NEXT_QUESTION,
+                handleNextQuestion,
+            );
         };
 
         connect();
 
         return () => {
+            socketRef.current?.disconnect();
+
             socketRef.current?.off("connect", onConnect);
             socketRef.current?.off("disconnect", onDisconnect);
+            socketRef.current?.off(
+                SOCKET_EVENT.NEXT_QUESTION,
+                handleNextQuestion,
+            );
+
+            socketRef.current = null;
         };
     }, []);
 
-    const startSession = (sessionId: string, interval: number = 60 * 3) => {
+    const startSession = (sessionId: string) => {
         socketRef.current?.emit(SOCKET_EVENT.START_SESSION, {
             sessionId,
-            interval,
+        });
+    };
+
+    const nextQestion = (sessionId: string) => {
+        socketRef.current?.emit(SOCKET_EVENT.NEXT_QUESTION, {
+            sessionId,
         });
     };
 
@@ -75,7 +129,9 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
             value={{
                 isConnected,
                 startSession,
+                nextQestion,
                 endSession,
+                currentQuestion,
             }}
         >
             {children}

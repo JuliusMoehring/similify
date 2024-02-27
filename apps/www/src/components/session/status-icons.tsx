@@ -1,8 +1,9 @@
 import {
+    CalendarDaysIcon,
     CheckCircle2Icon,
     CircleDashedIcon,
-    CalendarDaysIcon,
 } from "lucide-react";
+
 import { SESSION_STATUS } from "~/lib/session-status";
 
 export const SessionStatusPlannedIcon = CalendarDaysIcon;

@@ -1,0 +1,77 @@
+name: "[websocket] Deploy production"
+
+on:
+    workflow_dispatch:
+
+    push:
+        branches:
+            - main
+
+env:
+    REGISTRY: ${{ vars.DOCKER_REGISTRY }}
+    IMAGE_NAME: ${{ vars.WEBSOCKET_IMAGE_NAME }}
+
+jobs:
+    build:
+        name: Build production application 👷🏽
+        runs-on: ubuntu-latest
+        environment: "production"
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Install PNPM
+              uses: pnpm/action-setup@v3
+              with:
+                  version: 8
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Build Application
+              run: cd apps/websocket && pnpm build
+
+            - name: Create build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build
+                  path: apps/websocket/build
+
+    docker:
+        name: Build 🔧 & Push 🚀 Docker Image
+        runs-on: ubuntu-latest
+        needs: build
+        environment: "production"
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Download build artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: build
+                  path: apps/websocket/build
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+              with:
+                  username: ${{ vars.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+            - name: Build and push Docker image
+              uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+              with:
+                  context: .
+                  file: ./apps/websocket/Dockerfile
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}

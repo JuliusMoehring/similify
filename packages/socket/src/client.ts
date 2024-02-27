@@ -62,7 +62,6 @@ export const QuestionSchema = z.union([
 export type QuestionType = z.infer<typeof QuestionSchema>;
 
 export const QuestionMessageSchema = z.object({
-    secondsToNextQuestion: z.number().int().positive(),
     question: z.union([
         FreeTextQuestionMessageSchema,
         SingleChoiceQuestionMessageSchema,
@@ -71,3 +70,14 @@ export const QuestionMessageSchema = z.object({
 });
 
 export type QuestionMessageType = z.infer<typeof QuestionMessageSchema>;
+
+export const NextQuestionMessageSchema = z.union([
+    z.object({
+        status: z.literal("ok"),
+        question: QuestionSchema,
+    }),
+    z.object({
+        status: z.literal("error"),
+        error: z.unknown(),
+    }),
+]);

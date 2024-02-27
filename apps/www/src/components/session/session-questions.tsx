@@ -2,9 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { useHandleTRPCError } from "~/hooks/use-handle-trpc-error";
 import { validateIsEditMode } from "~/lib/search-params";
-import { api } from "~/trpc/react";
 import { QuestionEditMode } from "./edit/edit-mode";
 import { QuestionViewMode } from "./view/view-mode";
 
@@ -15,16 +13,6 @@ type SessionQuestionsProps = {
 export function SessionQuestions({ sessionId }: SessionQuestionsProps) {
     const searchParams = useSearchParams();
     const isEditMode = validateIsEditMode(searchParams);
-
-    const questionsQuery = api.custom.getSessionQuestions.useQuery({
-        sessionId,
-    });
-
-    useHandleTRPCError(
-        questionsQuery,
-        "Could not load questions",
-        "Could not load questions",
-    );
 
     return (
         <div className="space-y-4">

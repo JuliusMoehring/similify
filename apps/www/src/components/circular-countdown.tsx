@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, DependencyList } from "react";
 import { Rubik_Mono_One } from "next/font/google";
+import {
+    ComponentPropsWithoutRef,
+    DependencyList,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react";
+
 import { cn } from "~/lib/utils";
-import { useLayoutEffect } from "react";
-import { ComponentPropsWithoutRef } from "react";
 
 const rubikMonoOne = Rubik_Mono_One({
     weight: "400",
@@ -105,7 +111,7 @@ export function CircularCountdown({
                 {displayProperties && (
                     <svg className="h-full w-full" viewBox="0 0 100 100">
                         <circle
-                            className="stroke-muted fill-none text-transparent"
+                            className="fill-none stroke-muted text-transparent"
                             cx="50"
                             cy="50"
                             r={displayProperties.radius}
@@ -114,7 +120,7 @@ export function CircularCountdown({
                         />
 
                         <circle
-                            className="stroke-foreground fill-none text-transparent"
+                            className="fill-none stroke-foreground text-transparent"
                             cx="50"
                             cy="50"
                             r={displayProperties.radius}
@@ -130,7 +136,7 @@ export function CircularCountdown({
                 )}
                 <span
                     className={cn(
-                        "text-foreground absolute inset-0 flex items-center justify-center font-bold tabular-nums",
+                        "absolute inset-0 flex items-center justify-center font-bold tabular-nums text-foreground",
                         rubikMonoOne.className,
                     )}
                     style={{

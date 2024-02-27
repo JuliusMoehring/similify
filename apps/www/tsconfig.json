@@ -6,7 +6,10 @@
         "target": "ESNext",
         "types": ["web"],
         "paths": {
-            "~/*": ["./src/*"]
+            "~/*": ["./src/*"],
+            "@ui/*": ["./src/components/ui/*"],
+            "@hooks/*": ["./src/hooks/*"],
+            "@contexts/*": ["./src/contexts/*"]
         },
         "strictNullChecks": true
     }

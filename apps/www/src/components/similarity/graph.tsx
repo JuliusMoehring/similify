@@ -2,6 +2,7 @@
 
 import * as d3 from "d3";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+
 import { useCalculateHeight } from "~/hooks/use-calculate-height";
 
 type Node = d3.SimulationNodeDatum & {
@@ -60,7 +61,7 @@ export function SimilarityGraph<N extends Node, L extends Link>({
         return () => {
             window.removeEventListener("resize", updateDimensions);
         };
-    }, []);
+    }, [height]);
 
     useEffect(() => {
         const simulation = d3

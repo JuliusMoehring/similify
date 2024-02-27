@@ -61,9 +61,7 @@ export function usePersistedState<Z extends z.ZodTypeAny = z.ZodNever>(
     key: string,
     defaultValue: z.infer<Z> | null,
 ) {
-    type State = z.infer<Z> | null;
-
-    const [state, setInternalState] = useState<State>(() =>
+    const [state, setInternalState] = useState<z.infer<Z> | null>(() =>
         getInitialState(schema, key, defaultValue),
     );
 
@@ -88,7 +86,12 @@ export function usePersistedState<Z extends z.ZodTypeAny = z.ZodNever>(
         };
     }, [schema, key]);
 
-    const setState = (stateSetter: State | ((state: State) => State)) => {
+    const setState = (
+        stateSetter:
+            | z.infer<Z>
+            | null
+            | ((state: z.infer<Z> | null) => z.infer<Z> | null),
+    ) => {
         const valueToStore =
             stateSetter instanceof Function ? stateSetter(state) : stateSetter;
 

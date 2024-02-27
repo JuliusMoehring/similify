@@ -24,7 +24,7 @@ export function SpotifyAuthorizationButton() {
     url.searchParams.sort();
 
     return (
-        <ExternalLinkButton href={url.toString()} className="bg-spotify w-full">
+        <ExternalLinkButton href={url.toString()} className="w-full bg-spotify">
             Authorize Spotify Access
         </ExternalLinkButton>
     );

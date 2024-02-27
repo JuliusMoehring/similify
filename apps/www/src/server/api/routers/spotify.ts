@@ -12,8 +12,8 @@ import {
 import { z, ZodError } from "zod";
 
 import { env } from "~/env";
-import { createTRPCRouter, publicProcedure } from "../trpc";
 import { ERROR_MAP } from "~/lib/error-map";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 const SpotifyTokenResponse = z.object({
     access_token: z.string(),

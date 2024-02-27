@@ -1,31 +1,24 @@
 import { db, eq } from "database";
-import { Socket, Namespace } from "socket.io";
+import { type Namespace, type Socket } from "socket.io";
+import { z, ZodError } from "zod";
+
 import {
     FreeTextQuestionMessageSchema,
     MultipleChoiceQuestionMessageSchema,
     QuestionType,
-    SOCKET_EVENT,
     SingleChoiceQuestionMessageSchema,
+    SOCKET_EVENT,
 } from "./client";
-import { z, ZodError } from "zod";
-
-const DEFAULT_QUESTION_INTERVAL = 2 * 60;
 
 export class ActiveSessionHandler {
     private sessionId: string;
 
     private questions: QuestionType[] = [];
 
-    private questionIntervalInSeconds: number;
-    private nodeJSTimeout: NodeJS.Timeout | null = null;
     private currentQuestionIndex: number = 0;
 
-    constructor(
-        sessionId: string,
-        questionIntervalInSeconds: number = DEFAULT_QUESTION_INTERVAL,
-    ) {
+    constructor(sessionId: string) {
         this.sessionId = sessionId;
-        this.questionIntervalInSeconds = questionIntervalInSeconds;
     }
 
     private async fetchQuestions() {
@@ -86,43 +79,33 @@ export class ActiveSessionHandler {
         this.questions = await this.fetchQuestions();
     }
 
-    startSession(socket: Socket, publicIO: Namespace) {
+    startSession(socket: Socket) {
         socket.join(this.sessionId);
 
         socket.emit(SOCKET_EVENT.START_SESSION, {
             status: "ok",
         });
+    }
 
+    nextQuestion(socket: Socket, publicIO: Namespace) {
         const question = this.getNextQuestion();
 
         if (!question) {
-            return;
+            publicIO.to(this.sessionId).emit(SOCKET_EVENT.NEXT_QUESTION, null);
+
+            return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+                status: "error",
+                message: "No more questions",
+            });
         }
 
         publicIO.to(this.sessionId).emit(SOCKET_EVENT.NEXT_QUESTION, {
-            secondsToNextQuestion: this.questionIntervalInSeconds,
             question,
         });
 
-        this.nodeJSTimeout = setInterval(() => {
-            const question = this.getNextQuestion();
-
-            if (!question) {
-                clearInterval(this.nodeJSTimeout!);
-                this.nodeJSTimeout = null;
-
-                publicIO
-                    .to(this.sessionId)
-                    .emit(SOCKET_EVENT.NEXT_QUESTION, null);
-
-                socket.leave(this.sessionId);
-                return;
-            }
-
-            publicIO.to(this.sessionId).emit(SOCKET_EVENT.NEXT_QUESTION, {
-                secondsToNextQuestion: this.questionIntervalInSeconds,
-                question,
-            });
-        }, this.questionIntervalInSeconds * 1000);
+        socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+            status: "ok",
+            question,
+        });
     }
 }

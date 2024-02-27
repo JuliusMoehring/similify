@@ -25,7 +25,7 @@ export function SpotifyStepper() {
     );
 
     return (
-        <ol className="@container flex w-full items-center justify-between space-x-2 rounded-lg p-3 text-center text-sm font-medium">
+        <ol className="flex w-full items-center justify-between space-x-2 rounded-lg p-3 text-center text-sm font-medium @container">
             {steps.map((step, index) => (
                 <Fragment key={step.pathname}>
                     <li className="flex items-center gap-2">
@@ -39,7 +39,7 @@ export function SpotifyStepper() {
                             {index + 1}
                         </span>
 
-                        <span className="text-muted-foreground @xs:inline hidden">
+                        <span className="hidden text-muted-foreground @xs:inline">
                             {step.name}
                         </span>
                     </li>

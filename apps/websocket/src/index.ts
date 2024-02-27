@@ -2,9 +2,9 @@ import { createServer } from "node:http";
 import { db, eq } from "database";
 import express from "express";
 import getPort, { portNumbers } from "get-port";
+import { Server } from "socket.io";
 import { SOCKET_EVENT } from "socket/src/client";
 import { ActiveSessionHandler } from "socket/src/server";
-import { Server } from "socket.io";
 import { z, ZodError } from "zod";
 
 import { env } from "./env";
@@ -41,7 +41,14 @@ const LeaveSessionMessageSchema = z.object({
 
 const StartSessionMessageSchema = z.object({
     sessionId: z.string().uuid(),
-    interval: z.number().int().positive(),
+});
+
+const NextQuestionMessageSchema = z.object({
+    sessionId: z.string().uuid(),
+});
+
+const EndSessionMessageSchema = z.object({
+    sessionId: z.string().uuid(),
 });
 
 publicIO.on("connection", (socket) => {
@@ -100,11 +107,12 @@ adminIO.use((socket, next) => {
     next();
 });
 
+const sessions = new Map<string, ActiveSessionHandler>();
+
 adminIO.on("connection", (socket) => {
     socket.on(SOCKET_EVENT.START_SESSION, async (message) => {
         try {
-            const { sessionId, interval } =
-                StartSessionMessageSchema.parse(message);
+            const { sessionId } = StartSessionMessageSchema.parse(message);
 
             const session = await db.query.sessions.findFirst({
                 where: (session) => eq(session.id, sessionId),
@@ -114,14 +122,13 @@ adminIO.on("connection", (socket) => {
                 throw new Error("Session not found");
             }
 
-            const activeSessionHandler = new ActiveSessionHandler(
-                sessionId,
-                interval,
-            );
+            const activeSessionHandler = new ActiveSessionHandler(sessionId);
+
+            sessions.set(sessionId, activeSessionHandler);
 
             await activeSessionHandler.init();
 
-            activeSessionHandler.startSession(socket, publicIO);
+            activeSessionHandler.startSession(socket);
         } catch (error) {
             console.error("Failed to start session", error);
 
@@ -134,6 +141,64 @@ adminIO.on("connection", (socket) => {
 
             if (error instanceof Error) {
                 return socket.emit(SOCKET_EVENT.START_SESSION, {
+                    status: "error",
+                    error: error.message,
+                });
+            }
+        }
+    });
+
+    socket.on(SOCKET_EVENT.NEXT_QUESTION, async (message) => {
+        try {
+            const { sessionId } = NextQuestionMessageSchema.parse(message);
+
+            const activeSessionHandler = sessions.get(sessionId);
+
+            if (!activeSessionHandler) {
+                throw new Error("Session not found");
+            }
+
+            activeSessionHandler.nextQuestion(socket, publicIO);
+        } catch (error) {
+            console.error("Failed to change next question", error);
+
+            if (error instanceof ZodError) {
+                return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+                    status: "error",
+                    error: JSON.parse(error.message),
+                });
+            }
+
+            if (error instanceof Error) {
+                return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+                    status: "error",
+                    error: error.message,
+                });
+            }
+        }
+    });
+
+    socket.on(SOCKET_EVENT.END_SESSION, async (message) => {
+        try {
+            const { sessionId } = EndSessionMessageSchema.parse(message);
+
+            sessions.delete(sessionId);
+
+            socket.emit(SOCKET_EVENT.END_SESSION, {
+                status: "ok",
+            });
+        } catch (error) {
+            console.error("Failed to end session", error);
+
+            if (error instanceof ZodError) {
+                return socket.emit(SOCKET_EVENT.END_SESSION, {
+                    status: "error",
+                    error: JSON.parse(error.message),
+                });
+            }
+
+            if (error instanceof Error) {
+                return socket.emit(SOCKET_EVENT.END_SESSION, {
                     status: "error",
                     error: error.message,
                 });

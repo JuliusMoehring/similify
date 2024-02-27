@@ -1,13 +1,13 @@
+import { NeonDbError } from "@neondatabase/serverless";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "database";
 import { attendees, sessions } from "database/src/schema/session";
-import { ZodError, z } from "zod";
+import { z, ZodError } from "zod";
 
+import { ERROR_MAP } from "~/lib/error-map";
 import { SESSION_STATUS, SessionStatusSchema } from "~/lib/session-status";
 import { SessionTypeSchema } from "~/lib/session-type";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { NeonDbError } from "@neondatabase/serverless";
-import { ERROR_MAP } from "~/lib/error-map";
 
 const GetSessionResponseSchema = z.object({
     id: z.string().uuid(),
@@ -150,6 +150,7 @@ export const sessionRouter = createTRPCRouter({
                         id: true,
                         name: true,
                         description: true,
+                        type: true,
                     },
                     where: (session) => eq(session.id, sessionId),
                 });

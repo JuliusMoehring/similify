@@ -7,23 +7,14 @@ import { UpdateSessionStatusButton } from "~/components/session/update-status-bu
 import { Headline } from "~/components/ui/headline";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
-import { useHandleTRPCError } from "~/hooks/use-handle-trpc-error";
+import { useGetSession } from "~/hooks/use-get-session";
 import { constructInviteURL } from "~/lib/invite-url";
 import { SESSION_TYPE } from "~/lib/session-type";
-import { api } from "~/trpc/react";
 
 export default function Session({ params }: { params: { sessionId: string } }) {
     const sessionId = params.sessionId;
 
-    const sessionQuery = api.session.getSession.useQuery({
-        sessionId,
-    });
-
-    useHandleTRPCError(
-        sessionQuery,
-        "Failed to load session",
-        "Failed to load session",
-    );
+    const sessionQuery = useGetSession(sessionId);
 
     if (sessionQuery.isLoading) {
         return <div>Loading session...</div>;

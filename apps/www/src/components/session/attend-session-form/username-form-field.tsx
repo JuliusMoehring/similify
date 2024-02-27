@@ -1,12 +1,13 @@
 import { DicesIcon } from "lucide-react";
+
 import { Button } from "~/components/ui/button";
 import {
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    FormDescription,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { useAttendSessionForm } from "~/hooks/use-attend-session-form";

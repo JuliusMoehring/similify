@@ -31,8 +31,8 @@ import { InternalLinkButton } from "~/components/ui/link-button";
 import { Separator } from "~/components/ui/separator";
 import { AdminSocketProvider } from "~/contexts/admin-socket";
 import { useCalculateHeight } from "~/hooks/use-calculate-height";
+import { useGetSessions } from "~/hooks/use-get-sessions";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
 import { type RouterOutputs } from "~/trpc/shared";
 
 type SidebarSessionLinkProps = {
@@ -74,16 +74,16 @@ export default function DashboardLayout({
 
     const { ref: mainRef, height: mainHeight } = useCalculateHeight(0);
 
-    const sessionsQuery = api.session.getSessions.useQuery();
+    const sessionsQuery = useGetSessions();
 
     return (
         <AdminSocketProvider>
             <div className="flex h-screen flex-col overflow-hidden">
-                <header className="flex items-center justify-between border-b border-muted px-8 py-4">
+                <header className="border-muted flex items-center justify-between border-b px-8 py-4">
                     <div className="flex items-center gap-4">
                         <Image
                             src="/images/logo.png"
-                            className="h-10 w-10 rounded-md outline outline-offset-2 outline-muted-foreground"
+                            className="outline-muted-foreground h-10 w-10 rounded-md outline outline-offset-2"
                             alt="logo"
                             width={40}
                             height={40}
@@ -107,7 +107,7 @@ export default function DashboardLayout({
 
                                 <span>{user?.username}</span>
 
-                                <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
+                                <ChevronDownIcon className="text-muted-foreground h-4 w-4" />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56">
@@ -178,14 +178,14 @@ export default function DashboardLayout({
                 </header>
 
                 <div className="flex h-full">
-                    <aside className="w-64 shrink-0 space-y-2 border-r border-muted px-2 py-4">
+                    <aside className="border-muted w-64 shrink-0 space-y-2 border-r px-2 py-4">
                         <InternalLinkButton
                             href={"/dashboard"}
                             className="flex w-full items-center gap-4"
                             variant="outline"
                         >
                             Create new session
-                            <PencilIcon className="h-4 w-4 text-muted-foreground" />
+                            <PencilIcon className="text-muted-foreground h-4 w-4" />
                         </InternalLinkButton>
 
                         <Separator />

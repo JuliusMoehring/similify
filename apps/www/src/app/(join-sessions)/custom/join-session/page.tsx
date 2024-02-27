@@ -3,21 +3,25 @@
 import { TRPCClientError } from "@trpc/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+
 import { AttendSessionUsernameFormField } from "~/components/session/attend-session-form/username-form-field";
 import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 import { Headline } from "~/components/ui/headline";
 import {
-    useAttendSessionForm,
     AttendSessionFormType,
+    useAttendSessionForm,
 } from "~/hooks/use-attend-session-form";
-import { validateSessionId } from "~/lib/search-params";
+import { useCustomSessionAttendeeId } from "~/hooks/use-custom-session-attendee-id";
+import { validateRequiredSessionId } from "~/lib/search-params";
 import { api } from "~/trpc/react";
 
 export default function CustomJoinSession() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const sessionId = validateSessionId(searchParams);
+    const sessionId = validateRequiredSessionId(searchParams);
+
+    const [_, setAttendeeId] = useCustomSessionAttendeeId(sessionId);
 
     const attendSessionMutation = api.session.attendSession.useMutation();
 
@@ -33,10 +37,12 @@ export default function CustomJoinSession() {
         }
 
         try {
-            await attendSessionMutation.mutateAsync({
+            const attendeeId = await attendSessionMutation.mutateAsync({
                 name: username,
                 sessionId,
             });
+
+            setAttendeeId(attendeeId);
 
             router.replace(`/session/${sessionId}`);
         } catch (error) {

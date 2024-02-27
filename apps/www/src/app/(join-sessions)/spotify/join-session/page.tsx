@@ -5,18 +5,19 @@ import { CheckCircle, XCircleIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+import { AttendSessionUsernameFormField } from "~/components/session/attend-session-form/username-form-field";
 import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 import { LoadingSpinner } from "~/components/ui/loading-spinner";
-import { usePersistedSessionId } from "~/hooks/use-persisted-session-id";
-import { ERROR_MAP, ERROR_MESSAGES } from "~/lib/error-map";
-import { SEARCH_PARAMS, validateCode } from "~/lib/search-params";
-import { api } from "~/trpc/react";
 import {
     AttendSessionFormType,
     useAttendSessionForm,
 } from "~/hooks/use-attend-session-form";
-import { AttendSessionUsernameFormField } from "~/components/session/attend-session-form/username-form-field";
+import { usePersistedSessionId } from "~/hooks/use-persisted-session-id";
+import { ERROR_MAP, ERROR_MESSAGES } from "~/lib/error-map";
+import { SEARCH_PARAMS, validateCode } from "~/lib/search-params";
+import { api } from "~/trpc/react";
 
 type SpotifyDataLoadingStateProps = {
     isLoading: boolean;

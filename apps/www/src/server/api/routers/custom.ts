@@ -1,10 +1,16 @@
 import { TRPCError } from "@trpc/server";
-import { and, customQuestionOptions, customQuestions, eq } from "database";
+import {
+    and,
+    customQuestionAnswer,
+    customQuestionOptions,
+    customQuestions,
+    eq,
+} from "database";
 import { z } from "zod";
 
 import { FilledCustomQuestionsSchema } from "~/components/session/edit/types";
 import { CUSTOM_QUESTION_TYPE } from "~/lib/custom-question-type";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const customRouter = createTRPCRouter({
     getSessionQuestions: protectedProcedure
@@ -120,6 +126,119 @@ export const customRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: "INTERNAL_SERVER_ERROR",
                     message: "Could not create custom questions.",
+                });
+            }
+        }),
+
+    getSessionQuestionAnswerCount: protectedProcedure
+        .input(
+            z.object({
+                sessionId: z.string().uuid(),
+                questionId: z.string().uuid(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const { db, session } = ctx;
+
+            const userId = session.userId;
+
+            const { sessionId, questionId } = input;
+
+            try {
+                const session = await db.query.sessions.findFirst({
+                    where: (session) =>
+                        and(
+                            eq(session.id, sessionId),
+                            eq(session.creatorId, userId),
+                        ),
+                });
+
+                if (!session) {
+                    throw new TRPCError({
+                        code: "NOT_FOUND",
+                        message: "Session not found.",
+                    });
+                }
+
+                const questionAnswers = await db.query.customQuestions.findMany(
+                    {
+                        columns: { id: true },
+                        where: (question) =>
+                            and(
+                                eq(question.id, questionId),
+                                eq(question.sessionId, sessionId),
+                            ),
+                    },
+                );
+
+                return questionAnswers.length;
+            } catch (error) {
+                console.error(error);
+
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Could not load custom question answer count.",
+                });
+            }
+        }),
+
+    answerCustomQuestion: publicProcedure
+        .input(
+            z.object({
+                sessionId: z.string().uuid(),
+                questionId: z.string().uuid(),
+                attendeeId: z.string().uuid(),
+                answer: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { db } = ctx;
+            const { sessionId, questionId, attendeeId, answer } = input;
+
+            try {
+                const customQuestionAnswersFromDatabase = await db
+                    .insert(customQuestionAnswer)
+                    .values({
+                        sessionId,
+                        questionId,
+                        attendeeId,
+                        answer,
+                    })
+                    .onConflictDoNothing()
+                    .returning({ id: customQuestionAnswer.id });
+
+                if (customQuestionAnswersFromDatabase.length === 0) {
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Question already answered.",
+                    });
+                }
+
+                const customQuestionAnswerFromDatabase =
+                    customQuestionAnswersFromDatabase[0];
+
+                if (!customQuestionAnswerFromDatabase) {
+                    throw new TRPCError({
+                        code: "INTERNAL_SERVER_ERROR",
+                        message: "Could not save answer.",
+                    });
+                }
+
+                return customQuestionAnswerFromDatabase;
+            } catch (error) {
+                console.error(error);
+
+                if (error instanceof TRPCError) {
+                    throw error;
+                }
+
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Could not save answer.",
                 });
             }
         }),

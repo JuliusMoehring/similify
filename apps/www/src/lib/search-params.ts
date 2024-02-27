@@ -30,40 +30,40 @@ function validateSearchParam<Z extends z.ZodTypeAny = z.ZodNever>(
     return result.data as z.infer<Z>;
 }
 
-const SessionIdSchema = z.string().nullable();
+export function validateRequiredSessionId(
+    searchParams: ReturnType<typeof useSearchParams>,
+) {
+    const sessionId = searchParams.get(SEARCH_PARAMS.SESSION_ID);
+
+    return validateSearchParam(sessionId, z.string().uuid());
+}
 
 export function validateSessionId(
     searchParams: ReturnType<typeof useSearchParams>,
 ) {
-    const page = searchParams.get(SEARCH_PARAMS.SESSION_ID);
+    const sessionId = searchParams.get(SEARCH_PARAMS.SESSION_ID);
 
-    return validateSearchParam(page, SessionIdSchema);
+    return validateSearchParam(sessionId, z.string().uuid().nullable());
 }
-
-const CodeSchema = z.string().nullable();
 
 export function validateCode(searchParams: ReturnType<typeof useSearchParams>) {
     const code = searchParams.get(SEARCH_PARAMS.CODE);
 
-    return validateSearchParam(code, CodeSchema);
+    return validateSearchParam(code, z.string().nullable());
 }
-
-const SpotifyAuthorizationErrorSchema = z.string().nullable();
 
 export function validateSpotifyAuthorizationError(
     searchParams: ReturnType<typeof useSearchParams>,
 ) {
     const error = searchParams.get(SEARCH_PARAMS.SPOTIFY_AUTHORIZATION_ERROR);
 
-    return validateSearchParam(error, SpotifyAuthorizationErrorSchema);
+    return validateSearchParam(error, z.string().nullable());
 }
-
-const EditModeSchema = z.coerce.boolean().default(false);
 
 export function validateIsEditMode(
     searchParams: ReturnType<typeof useSearchParams>,
 ) {
     const editMode = searchParams.get(SEARCH_PARAMS.EDIT_MODE);
 
-    return validateSearchParam(editMode, EditModeSchema);
+    return validateSearchParam(editMode, z.coerce.boolean().default(false));
 }

@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { index, pgTable, timestamp, uuid, numeric } from "drizzle-orm/pg-core";
+import { index, numeric, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { attendees, sessions } from "./session";
 

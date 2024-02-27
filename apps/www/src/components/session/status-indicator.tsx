@@ -1,5 +1,5 @@
 import { SessionStatusType } from "~/lib/session-status";
-import { Alert, AlertTitle, AlertDescription } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { SESSION_ICON_MAP } from "./status-icons";
 
 type SessionStatusIndicatorProps = {

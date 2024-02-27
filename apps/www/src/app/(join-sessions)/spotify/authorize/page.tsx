@@ -37,7 +37,7 @@ export default function SpotifyAuthorize() {
                 <SpotifyAuthorizationButton />
             </div>
 
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
                 In order for you to join the session, we need to access your
                 Spotify account. When you continue and sign up for the session,
                 we will read your Spotify top tracks and artists. This

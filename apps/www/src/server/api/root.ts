@@ -1,9 +1,9 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { customRouter } from "./routers/custom";
 import { sessionRouter } from "./routers/session";
+import { similarityRouter } from "./routers/similarity";
 import { socketRouter } from "./routers/socket";
 import { spotifyRouter } from "./routers/spotify";
-import { similarityRouter } from "./routers/similarity";
 
 export const appRouter = createTRPCRouter({
     custom: customRouter,

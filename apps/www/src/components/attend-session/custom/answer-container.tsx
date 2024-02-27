@@ -2,13 +2,12 @@
 
 import { ComponentPropsWithoutRef, PropsWithChildren } from "react";
 import { QuestionMessageType } from "socket/src/client";
-import { Card, CardTitle } from "../ui/card";
-import { CardDescription } from "../ui/card";
-import { CircularCountdown } from "../circular-countdown";
+import { Card, CardDescription, CardTitle } from "@ui/card";
+
 import { cn } from "~/lib/utils";
 
 type AnswerContainerProps = ComponentPropsWithoutRef<"div"> & {
-    message: QuestionMessageType;
+    message: QuestionMessageType | null;
 };
 
 export function AnswerContainer({
@@ -17,7 +16,11 @@ export function AnswerContainer({
     children,
     ...props
 }: PropsWithChildren<AnswerContainerProps>) {
-    const { question, secondsToNextQuestion } = message;
+    if (!message) {
+        return null;
+    }
+
+    const { question } = message;
 
     return (
         <Card className={cn("space-y-4 p-4", className)} {...props}>
@@ -29,12 +32,6 @@ export function AnswerContainer({
 
                     <CardTitle>{question.question}</CardTitle>
                 </div>
-
-                <CircularCountdown
-                    seconds={secondsToNextQuestion}
-                    dependencies={[question]}
-                    className="h-14 w-14 shrink-0"
-                />
             </div>
 
             {children}

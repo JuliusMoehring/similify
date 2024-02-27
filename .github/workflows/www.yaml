@@ -1,0 +1,49 @@
+name: "[www] Deploy production"
+
+on:
+    workflow_dispatch:
+
+    push:
+        branches:
+            - main
+
+env:
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+    setup:
+        name: Setup deployment for production environment ⚙️
+        environment: "production"
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - uses: pnpm/action-setup@v3
+              with:
+                  version: 8
+
+            - name: Install Vercel CLI
+              run: pnpm add --global vercel@latest
+
+    deploy:
+        name: Build production deployment 🚀
+        needs: setup
+        runs-on: ubuntu-latest
+        environment: "production"
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - uses: pnpm/action-setup@v3
+              with:
+                  version: 8
+
+            - name: Pull Vercel Environment Information
+              run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+            - name: Build Application
+              run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+            - name: Deploy Application
+              run: vercel deploy --prebuilt --prod --skip-domain --token=${{ secrets.VERCEL_TOKEN }}
