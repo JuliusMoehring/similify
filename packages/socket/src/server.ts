@@ -108,4 +108,12 @@ export class ActiveSessionHandler {
             question,
         });
     }
+
+    closeQuestion(socket: Socket, publicIO: Namespace) {
+        publicIO.to(this.sessionId).emit(SOCKET_EVENT.CLOSE_QUESTION, null);
+
+        socket.emit(SOCKET_EVENT.CLOSE_QUESTION, {
+            status: "ok",
+        });
+    }
 }

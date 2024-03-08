@@ -1,7 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
+import { useCustomSessionAttendeeId } from "@hooks/use-custom-session-attendee-id";
 import { Button } from "@ui/button";
 import {
     Form,
@@ -12,10 +10,11 @@ import {
     FormMessage,
 } from "@ui/form";
 import { Textarea } from "@ui/textarea";
-import { api } from "~/trpc/react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { TRPCClientError } from "@trpc/client";
-import { useCustomSessionAttendeeId } from "@hooks/use-custom-session-attendee-id";
+import { z } from "zod";
+
+import { usePublicSocket } from "~/contexts/public-socket";
 
 const FreeTextAnswerFormSchema = z.object({
     answer: z.string().min(1, {
@@ -32,9 +31,7 @@ type FreeTextAnswerProps = {
 
 export function FreeTextAnswer({ sessionId, questionId }: FreeTextAnswerProps) {
     const [attendeeId] = useCustomSessionAttendeeId(sessionId);
-
-    const answerQuestionMutation =
-        api.custom.answerCustomQuestion.useMutation();
+    const { handleSubmitAnswer, isSubmittingAnswer } = usePublicSocket();
 
     const form = useForm<FreeTextAnswerFormType>({
         resolver: zodResolver(FreeTextAnswerFormSchema),
@@ -48,24 +45,7 @@ export function FreeTextAnswer({ sessionId, questionId }: FreeTextAnswerProps) {
             return toast.error("Attendee ID is required");
         }
 
-        try {
-            await answerQuestionMutation.mutateAsync({
-                sessionId,
-                questionId,
-                attendeeId,
-                answer,
-            });
-        } catch (error) {
-            console.error(error);
-
-            if (error instanceof TRPCClientError) {
-                return toast.error("Failed to submit answer", {
-                    description: error.message,
-                });
-            }
-
-            toast.error("Failed to submit answer");
-        }
+        await handleSubmitAnswer(questionId, attendeeId, answer);
     };
 
     return (
@@ -93,10 +73,7 @@ export function FreeTextAnswer({ sessionId, questionId }: FreeTextAnswerProps) {
                 />
 
                 <div className="flex justify-end">
-                    <Button
-                        type="submit"
-                        disabled={answerQuestionMutation.isLoading}
-                    >
+                    <Button type="submit" disabled={isSubmittingAnswer}>
                         Submit Answer
                     </Button>
                 </div>

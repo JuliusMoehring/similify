@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,7 +17,6 @@ import { useGetSession } from "~/hooks/use-get-session";
 import { SESSION_STATUS } from "~/lib/session-status";
 import { SESSION_TYPE } from "~/lib/session-type";
 import { api } from "~/trpc/react";
-import { useRouter } from "next/navigation";
 
 type StartSessionButtonProps = {
     sessionId: string;

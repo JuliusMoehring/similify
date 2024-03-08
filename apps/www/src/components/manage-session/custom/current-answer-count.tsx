@@ -15,5 +15,9 @@ export function CurrentAnswerCount({
         questionId,
     );
 
-    return <Badge>{questionAnswerCountQuery.data}</Badge>;
+    return (
+        <Badge className="h-7 min-w-7">
+            {questionAnswerCountQuery.data ?? 0}
+        </Badge>
+    );
 }

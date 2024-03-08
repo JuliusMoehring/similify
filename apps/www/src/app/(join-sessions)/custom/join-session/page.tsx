@@ -64,9 +64,9 @@ export default function CustomJoinSession() {
                 Join Custom Session
             </Headline>
 
-            <p className="text-muted-foreground text-sm">How does it work?</p>
+            <p className="text-sm text-muted-foreground">How does it work?</p>
 
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
                 After you join the session, you will be able to see the
                 similarity between you and all the other attendees. The
                 similarity will be calculated based on the answers you provide

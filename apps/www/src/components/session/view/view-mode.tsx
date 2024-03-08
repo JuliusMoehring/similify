@@ -2,6 +2,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 import { InternalLinkButton } from "~/components/ui/link-button";
 import { useGetSession } from "~/hooks/use-get-session";
+import { useGetSessionQuestions } from "~/hooks/use-get-session-questions";
 import { CUSTOM_QUESTION_TYPE } from "~/lib/custom-question-type";
 import { SEARCH_PARAMS } from "~/lib/search-params";
 import { SESSION_STATUS } from "~/lib/session-status";
@@ -10,7 +11,6 @@ import { EmptyQuestions } from "./empty-state";
 import { FreeTextQuestionViewMode } from "./types/free-text";
 import { MultipleChoiceQuestionViewMode } from "./types/multiple-choice";
 import { SingleChoiceQuestionViewMode } from "./types/single-choice";
-import { useGetSessionQuestions } from "~/hooks/use-get-session-questions";
 
 type QuestionViewModeProps = {
     sessionId: string;

@@ -8,19 +8,20 @@ import {
 } from "react";
 import { io, Socket } from "socket.io-client";
 import {
-    SOCKET_EVENT,
     NextQuestionMessageSchema,
     QuestionType,
+    SOCKET_EVENT,
 } from "socket/src/client";
+import { toast } from "sonner";
 
 import { env } from "~/env";
 import { api } from "~/trpc/react";
-import { toast } from "sonner";
 
 type AdminSocketContextType = {
     isConnected: boolean;
     startSession: (sessionId: string) => void;
     nextQestion: (sessionId: string) => void;
+    closeQuestion: (sessionId: string) => void;
     endSession: (sessionId: string) => void;
     currentQuestion: QuestionType | null;
 };
@@ -73,6 +74,13 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
             }
         };
 
+        const handleCloseQuestion = () => {
+            setCurrentQuestion(null);
+            toast.success("Question has been closed", {
+                description: "You can now start the next question.",
+            });
+        };
+
         const connect = async () => {
             const apiToken = await getAPITokenMutation.mutateAsync();
 
@@ -88,6 +96,10 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
                 SOCKET_EVENT.NEXT_QUESTION,
                 handleNextQuestion,
             );
+            socketRef.current.on(
+                SOCKET_EVENT.CLOSE_QUESTION,
+                handleCloseQuestion,
+            );
         };
 
         connect();
@@ -100,6 +112,10 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
             socketRef.current?.off(
                 SOCKET_EVENT.NEXT_QUESTION,
                 handleNextQuestion,
+            );
+            socketRef.current?.off(
+                SOCKET_EVENT.CLOSE_QUESTION,
+                handleCloseQuestion,
             );
 
             socketRef.current = null;
@@ -118,6 +134,12 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
         });
     };
 
+    const closeQuestion = (sessionId: string) => {
+        socketRef.current?.emit(SOCKET_EVENT.CLOSE_QUESTION, {
+            sessionId,
+        });
+    };
+
     const endSession = (sessionId: string) => {
         socketRef.current?.emit(SOCKET_EVENT.END_SESSION, {
             sessionId,
@@ -130,6 +152,7 @@ export function AdminSocketProvider({ children }: PropsWithChildren) {
                 isConnected,
                 startSession,
                 nextQestion,
+                closeQuestion,
                 endSession,
                 currentQuestion,
             }}

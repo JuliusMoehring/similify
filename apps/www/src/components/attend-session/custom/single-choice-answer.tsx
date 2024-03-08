@@ -1,10 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { SingleChoiceQuestionMessageType } from "socket/src/client";
-import { z } from "zod";
-import { toast } from "sonner";
-import { TRPCClientError } from "@trpc/client";
-
+import { useCustomSessionAttendeeId } from "@hooks/use-custom-session-attendee-id";
 import { Button } from "@ui/button";
 import {
     Form,
@@ -15,8 +10,12 @@ import {
     FormMessage,
 } from "@ui/form";
 import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
-import { api } from "~/trpc/react";
-import { useCustomSessionAttendeeId } from "@hooks/use-custom-session-attendee-id";
+import { useForm } from "react-hook-form";
+import { SingleChoiceQuestionMessageType } from "socket/src/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import { usePublicSocket } from "~/contexts/public-socket";
 
 const SingleChoiceAnswerFormSchema = z.object({
     answer: z.string({
@@ -36,9 +35,7 @@ export function SingleChoiceAnswer({
     question,
 }: SingleChoiceAnswerProps) {
     const [attendeeId] = useCustomSessionAttendeeId(sessionId);
-
-    const answerQuestionMutation =
-        api.custom.answerCustomQuestion.useMutation();
+    const { handleSubmitAnswer, isSubmittingAnswer } = usePublicSocket();
 
     const form = useForm<SingleChoiceAnswerFormType>({
         resolver: zodResolver(SingleChoiceAnswerFormSchema),
@@ -49,24 +46,7 @@ export function SingleChoiceAnswer({
             return toast.error("Attendee ID is required");
         }
 
-        try {
-            await answerQuestionMutation.mutateAsync({
-                sessionId,
-                questionId: question.id,
-                attendeeId,
-                answer,
-            });
-        } catch (error) {
-            console.error(error);
-
-            if (error instanceof TRPCClientError) {
-                return toast.error("Failed to submit answer", {
-                    description: error.message,
-                });
-            }
-
-            toast.error("Failed to submit answer");
-        }
+        await handleSubmitAnswer(question.id, attendeeId, answer);
     };
 
     return (
@@ -110,10 +90,7 @@ export function SingleChoiceAnswer({
                 />
 
                 <div className="flex justify-end">
-                    <Button
-                        type="submit"
-                        disabled={answerQuestionMutation.isLoading}
-                    >
+                    <Button type="submit" disabled={isSubmittingAnswer}>
                         Submit Answer
                     </Button>
                 </div>

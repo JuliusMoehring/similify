@@ -1,12 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckedState } from "@radix-ui/react-checkbox";
-import { ControllerRenderProps, useForm } from "react-hook-form";
-import { MultipleChoiceQuestionMessageType } from "socket/src/client";
-import { z } from "zod";
-import { toast } from "sonner";
-import { TRPCClientError } from "@trpc/client";
 import { useCustomSessionAttendeeId } from "@hooks/use-custom-session-attendee-id";
-
+import { CheckedState } from "@radix-ui/react-checkbox";
 import { Button } from "@ui/button";
 import { Checkbox } from "@ui/checkbox";
 import {
@@ -17,7 +11,12 @@ import {
     FormLabel,
     FormMessage,
 } from "@ui/form";
-import { api } from "~/trpc/react";
+import { ControllerRenderProps, useForm } from "react-hook-form";
+import { MultipleChoiceQuestionMessageType } from "socket/src/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import { usePublicSocket } from "~/contexts/public-socket";
 
 const MultipleChoiceAnswerFormSchema = z.object({
     answers: z.array(z.string()).min(1, {
@@ -39,9 +38,7 @@ export function MultipleChoiceAnswer({
     question,
 }: MultipleChoiceAnswerProps) {
     const [attendeeId] = useCustomSessionAttendeeId(sessionId);
-
-    const answerQuestionMutation =
-        api.custom.answerCustomQuestion.useMutation();
+    const { handleSubmitAnswer, isSubmittingAnswer } = usePublicSocket();
 
     const form = useForm<MultipleChoiceAnswerFormType>({
         resolver: zodResolver(MultipleChoiceAnswerFormSchema),
@@ -71,24 +68,7 @@ export function MultipleChoiceAnswer({
             return toast.error("Attendee ID is required");
         }
 
-        try {
-            await answerQuestionMutation.mutateAsync({
-                sessionId,
-                questionId: question.id,
-                attendeeId,
-                answer: answers.join(" | "),
-            });
-        } catch (error) {
-            console.error(error);
-
-            if (error instanceof TRPCClientError) {
-                return toast.error("Failed to submit answer", {
-                    description: error.message,
-                });
-            }
-
-            toast.error("Failed to submit answer");
-        }
+        await handleSubmitAnswer(question.id, attendeeId, answers.join(" | "));
     };
 
     return (
@@ -144,10 +124,7 @@ export function MultipleChoiceAnswer({
                 />
 
                 <div className="flex justify-end">
-                    <Button
-                        type="submit"
-                        disabled={answerQuestionMutation.isLoading}
-                    >
+                    <Button type="submit" disabled={isSubmittingAnswer}>
                         Submit Answer
                     </Button>
                 </div>

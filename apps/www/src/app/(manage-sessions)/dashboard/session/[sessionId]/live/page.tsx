@@ -3,6 +3,7 @@
 import { CurrentAnswerCount } from "~/components/manage-session/custom/current-answer-count";
 import { UpdateSessionStatusButton } from "~/components/session/update-status-button";
 import { Button } from "~/components/ui/button";
+import { Headline } from "~/components/ui/headline";
 import { InternalLinkButton } from "~/components/ui/link-button";
 import { useAdminSocket } from "~/contexts/admin-socket";
 import { useGetSession } from "~/hooks/use-get-session";
@@ -15,7 +16,7 @@ export default function SessionLivePage({
 }) {
     const sessionId = params.sessionId;
 
-    const { nextQestion, currentQuestion } = useAdminSocket();
+    const { nextQestion, closeQuestion, currentQuestion } = useAdminSocket();
 
     const sessionQuery = useGetSession(sessionId);
 
@@ -29,30 +30,61 @@ export default function SessionLivePage({
 
     if (sessionQuery.data.status !== SESSION_STATUS.IN_PROGRESS) {
         return (
-            <div>
-                Session is not live
-                <p>Please go back to the session page</p>
-                <InternalLinkButton href={`/dashboard/session/${sessionId}`}>
-                    Go to session
+            <div className="flex h-full flex-col items-center justify-center">
+                <Headline tag="h1">Session is not live</Headline>
+
+                <p className="text-muted-foreground mt-2">
+                    Please go back to the session page
+                </p>
+
+                <InternalLinkButton
+                    href={`/dashboard/session/${sessionId}`}
+                    className="mt-8"
+                >
+                    Go back to session
                 </InternalLinkButton>
             </div>
         );
     }
 
     return (
-        <div>
-            <UpdateSessionStatusButton sessionId={sessionId} />
+        <div className="space-y-8">
+            <div className="flex items-center justify-end gap-4">
+                {currentQuestion ? (
+                    <Button onClick={() => closeQuestion(sessionId)}>
+                        Close Question
+                    </Button>
+                ) : (
+                    <Button onClick={() => nextQestion(sessionId)}>
+                        Next Question
+                    </Button>
+                )}
 
-            <Button onClick={() => nextQestion(sessionId)}>
-                Next Question
-            </Button>
+                <UpdateSessionStatusButton sessionId={sessionId} />
+            </div>
 
-            <CurrentAnswerCount
-                sessionId={sessionId}
-                questionId={currentQuestion?.id}
-            />
+            <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                    <span>Current Question:</span>
+                    {currentQuestion ? (
+                        <span className="font-bold">
+                            {currentQuestion.question}
+                        </span>
+                    ) : (
+                        <span className="text-muted-foreground">
+                            No question
+                        </span>
+                    )}
+                </div>
 
-            <code>{JSON.stringify(currentQuestion, null, 2)}</code>
+                <div className="flex items-center gap-4">
+                    <span>Current Answer Count:</span>
+                    <CurrentAnswerCount
+                        sessionId={sessionId}
+                        questionId={currentQuestion?.id}
+                    />
+                </div>
+            </div>
         </div>
     );
 }

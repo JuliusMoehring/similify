@@ -47,6 +47,10 @@ const NextQuestionMessageSchema = z.object({
     sessionId: z.string().uuid(),
 });
 
+const CloseQuestionMessageSchema = z.object({
+    sessionId: z.string().uuid(),
+});
+
 const EndSessionMessageSchema = z.object({
     sessionId: z.string().uuid(),
 });
@@ -161,6 +165,36 @@ adminIO.on("connection", (socket) => {
             activeSessionHandler.nextQuestion(socket, publicIO);
         } catch (error) {
             console.error("Failed to change next question", error);
+
+            if (error instanceof ZodError) {
+                return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+                    status: "error",
+                    error: JSON.parse(error.message),
+                });
+            }
+
+            if (error instanceof Error) {
+                return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {
+                    status: "error",
+                    error: error.message,
+                });
+            }
+        }
+    });
+
+    socket.on(SOCKET_EVENT.CLOSE_QUESTION, async (message) => {
+        try {
+            const { sessionId } = CloseQuestionMessageSchema.parse(message);
+
+            const activeSessionHandler = sessions.get(sessionId);
+
+            if (!activeSessionHandler) {
+                throw new Error("Session not found");
+            }
+
+            activeSessionHandler.closeQuestion(socket, publicIO);
+        } catch (error) {
+            console.error("Failed to close question", error);
 
             if (error instanceof ZodError) {
                 return socket.emit(SOCKET_EVENT.NEXT_QUESTION, {

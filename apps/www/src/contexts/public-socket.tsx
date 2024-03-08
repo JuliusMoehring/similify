@@ -1,3 +1,4 @@
+import { TRPCClientError } from "@trpc/client";
 import {
     createContext,
     useContext,
@@ -14,6 +15,7 @@ import {
 } from "socket/src/client";
 import { toast } from "sonner";
 import { ZodError } from "zod";
+
 import { FreeTextAnswer } from "~/components/attend-session/custom/free-text-answer";
 import { MultipleChoiceAnswer } from "~/components/attend-session/custom/multiple-choice-answer";
 import { SingleChoiceAnswer } from "~/components/attend-session/custom/single-choice-answer";
@@ -24,13 +26,19 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-
 import { env } from "~/env";
 import { CUSTOM_QUESTION_TYPE } from "~/lib/custom-question-type";
+import { api } from "~/trpc/react";
 
 type PublicSocketContextType = {
     isConnected: boolean;
     currentMessage: QuestionMessageType | null;
+    handleSubmitAnswer: (
+        questionId: string,
+        attendeeId: string,
+        answer: string,
+    ) => Promise<string | number | undefined>;
+    isSubmittingAnswer: boolean;
 };
 
 const PublicSocketContext = createContext<PublicSocketContextType | null>(null);
@@ -50,7 +58,10 @@ export function PublicSocketProvider({
 
     const socketRef = useRef<Socket | null>(null);
 
-    const handleSessionMessage = (message: unknown) => {
+    const answerQuestionMutation =
+        api.custom.answerCustomQuestion.useMutation();
+
+    const handleNextQuestion = (message: unknown) => {
         try {
             const question = QuestionMessageSchema.nullable().parse(message);
 
@@ -63,6 +74,41 @@ export function PublicSocketProvider({
                     description: JSON.stringify(error.issues, null, 2),
                 });
             }
+        }
+    };
+
+    const handleCloseQuestion = () => {
+        setCurrentMessage(null);
+    };
+
+    const handleSubmitAnswer = async (
+        questionId: string,
+        attendeeId: string,
+        answer: string,
+    ) => {
+        try {
+            await answerQuestionMutation.mutateAsync({
+                sessionId,
+                questionId,
+                attendeeId,
+                answer,
+            });
+
+            toast.success("Answer submitted", {
+                description: "Your answer has been submitted successfully",
+            });
+
+            setCurrentMessage(null);
+        } catch (error) {
+            console.error(error);
+
+            if (error instanceof TRPCClientError) {
+                return toast.error("Failed to submit answer", {
+                    description: error.message,
+                });
+            }
+
+            toast.error("Failed to submit answer");
         }
     };
 
@@ -87,7 +133,8 @@ export function PublicSocketProvider({
 
         socketRef.current.on("connect", onConnect);
         socketRef.current.on("disconnect", onDisconnect);
-        socketRef.current.on(SOCKET_EVENT.NEXT_QUESTION, handleSessionMessage);
+        socketRef.current.on(SOCKET_EVENT.NEXT_QUESTION, handleNextQuestion);
+        socketRef.current.on(SOCKET_EVENT.CLOSE_QUESTION, handleCloseQuestion);
 
         return () => {
             socketRef.current?.disconnect();
@@ -96,18 +143,28 @@ export function PublicSocketProvider({
             socketRef.current?.off("disconnect", onDisconnect);
             socketRef.current?.off(
                 SOCKET_EVENT.NEXT_QUESTION,
-                handleSessionMessage,
+                handleNextQuestion,
+            );
+            socketRef.current?.off(
+                SOCKET_EVENT.CLOSE_QUESTION,
+                handleCloseQuestion,
             );
 
             socketRef.current = null;
         };
     }, [sessionId]);
 
+    useEffect(() => {
+        console.log("currentMessage", currentMessage);
+    }, [currentMessage]);
+
     return (
         <PublicSocketContext.Provider
             value={{
                 isConnected,
                 currentMessage,
+                handleSubmitAnswer,
+                isSubmittingAnswer: answerQuestionMutation.isLoading,
             }}
         >
             {children}

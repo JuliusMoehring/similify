@@ -29,7 +29,7 @@ function getComponent(
             {attendees.map(({ id, name }) => (
                 <div
                     key={id}
-                    className="border-muted flex items-center gap-2 rounded-md border px-4 py-2"
+                    className="flex items-center gap-2 rounded-md border border-muted px-4 py-2"
                 >
                     <UserCircleIcon className="h-4 w-4" />
                     {name}
@@ -56,7 +56,7 @@ export function SessionAttendees({ sessionId }: SessionAttendeesProps) {
                 )}
 
                 {hasSessionAttendees && (
-                    <span className="bg-muted rounded-sm px-2 py-1 text-xs tabular-nums">
+                    <span className="rounded-sm bg-muted px-2 py-1 text-xs tabular-nums">
                         {sessionAttendeesQuery.data?.attendees.length}
                     </span>
                 )}
@@ -79,7 +79,7 @@ function SessionAttendeesEmptyState() {
                 above with the people you want to join your session.
             </p>
 
-            <span className="text-muted-foreground inline-flex items-center gap-2 text-sm">
+            <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 TIP: You can copy the invite link by clicking on the
                 <CopyIcon className="h-3 w-3" />
                 icon.

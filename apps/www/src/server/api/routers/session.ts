@@ -151,6 +151,7 @@ export const sessionRouter = createTRPCRouter({
                         name: true,
                         description: true,
                         type: true,
+                        status: true,
                     },
                     where: (session) => eq(session.id, sessionId),
                 });

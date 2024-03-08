@@ -160,16 +160,15 @@ export const customRouter = createTRPCRouter({
                     });
                 }
 
-                const questionAnswers = await db.query.customQuestions.findMany(
-                    {
+                const questionAnswers =
+                    await db.query.customQuestionAnswer.findMany({
                         columns: { id: true },
-                        where: (question) =>
+                        where: (table) =>
                             and(
-                                eq(question.id, questionId),
-                                eq(question.sessionId, sessionId),
+                                eq(table.questionId, questionId),
+                                eq(table.sessionId, sessionId),
                             ),
-                    },
-                );
+                    });
 
                 return questionAnswers.length;
             } catch (error) {

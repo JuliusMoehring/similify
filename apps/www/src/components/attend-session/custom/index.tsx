@@ -1,4 +1,5 @@
 import { PublicSocketProvider } from "@contexts/public-socket";
+import { Headline } from "~/components/ui/headline";
 
 type AttendCustomSessionProps = {
     sessionId: string;
@@ -7,40 +8,19 @@ type AttendCustomSessionProps = {
 export function AttendCustomSession({ sessionId }: AttendCustomSessionProps) {
     return (
         <PublicSocketProvider sessionId={sessionId}>
-            <div>Waiting for questions</div>
-            {/**
-             <div className="flex justify-center p-4">
-                 {currentMessage && (
-                     <AnswerContainer
-                         message={currentMessage}
-                         className="mt-16 max-h-96 w-[640px] max-w-full sm:mt-60"
-                     >
-                         {currentMessage?.question.type ===
-                             CUSTOM_QUESTION_TYPE.FREE_TEXT && (
-                             <FreeTextAnswer
-                                 sessionId={sessionId}
-                                 questionId={currentMessage.question.id}
-                             />
-                         )}
+            <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-8 text-center">
+                <Headline tag="h1" className="max-w-prose">
+                    Waiting for host to activate the next question
+                </Headline>
 
-                         {currentMessage?.question.type ===
-                             CUSTOM_QUESTION_TYPE.SINGLE_CHOICE && (
-                             <SingleChoiceAnswer
-                                 sessionId={sessionId}
-                                 question={currentMessage.question}
-                             />
-                         )}
-
-                         {currentMessage?.question.type ===
-                             CUSTOM_QUESTION_TYPE.MULTIPLE_CHOICE && (
-                             <MultipleChoiceAnswer
-                                 sessionId={sessionId}
-                                 question={currentMessage.question}
-                             />
-                         )}
-                     </AnswerContainer>
-                 )}
-             </div> */}
+                <p className="text-muted-foreground max-w-prose">
+                    Once the host activates the next question, you will be able
+                    to answer it. After you have answered the question and the
+                    host has closed the session, we will calculate the
+                    similartity between the answers of all the participants and
+                    show the results.
+                </p>
+            </div>
         </PublicSocketProvider>
     );
 }
