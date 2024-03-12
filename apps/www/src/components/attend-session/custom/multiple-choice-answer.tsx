@@ -19,9 +19,18 @@ import { z } from "zod";
 import { usePublicSocket } from "~/contexts/public-socket";
 
 const MultipleChoiceAnswerFormSchema = z.object({
-    answers: z.array(z.string()).min(1, {
-        message: "You have to select at least one answer",
-    }),
+    answers: z
+        .array(
+            z
+                .string()
+                .regex(
+                    new RegExp(/[^|]/),
+                    "'|' is an invalid character. Please remove it from your answer.",
+                ),
+        )
+        .min(1, {
+            message: "You have to select at least one answer",
+        }),
 });
 
 type MultipleChoiceAnswerFormType = z.infer<

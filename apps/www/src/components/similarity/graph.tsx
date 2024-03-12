@@ -1,7 +1,8 @@
 "use client";
 
 import * as d3 from "d3";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { MD5 } from "object-hash";
+import { useLayoutEffect, useMemo, useRef } from "react";
 
 import { useCalculateHeight } from "~/hooks/use-calculate-height";
 
@@ -35,105 +36,111 @@ export function SimilarityGraph<N extends Node, L extends Link>({
     nodes,
     links,
 }: SimilarityGraphProps<N, L>) {
-    const [dimensions, setDimensions] = useState({
-        width: 0,
-        height: 0,
-    });
-
     const { ref, height } = useCalculateHeight();
     const canvasRef = useRef<HTMLDivElement>(null);
+    const simulationRef = useRef<d3.Simulation<N, undefined> | null>(null);
+    const svgRef = useRef<d3.Selection<
+        SVGSVGElement,
+        unknown,
+        null,
+        undefined
+    > | null>(null);
+
+    const memoizedNodes = useMemo(() => nodes, [MD5(nodes)]);
+    const memoizedLinks = useMemo(() => links, [MD5(links)]);
 
     useLayoutEffect(() => {
-        const updateDimensions = () => {
+        const runSimulation = () => {
             if (!ref.current) {
                 return;
             }
 
+            if (simulationRef.current) {
+                simulationRef.current.force("charge", null);
+            }
+
+            svgRef.current?.remove();
+
             const { width, height } = ref.current.getBoundingClientRect();
 
-            setDimensions({ width, height });
+            const minDimension = Math.min(width, height);
+
+            simulationRef.current = d3
+                .forceSimulation(memoizedNodes)
+                .force(
+                    "charge",
+                    d3.forceManyBody().strength(Math.sqrt(minDimension) * -1),
+                )
+                .force("collide", d3.forceCollide(6))
+                .force(
+                    "link",
+                    d3
+                        .forceLink(memoizedLinks)
+                        .id((d) => (d as any).id)
+                        .strength((_, i) => memoizedLinks[i]?.value ?? 1),
+                )
+
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            svgRef.current = d3
+                .select(canvasRef.current)
+                .append("svg")
+                .attr("viewBox", [0, 0, width, height]);
+
+            const g = svgRef.current.append("g");
+
+            const link = g
+                .append("g")
+                .attr("stroke", "#999")
+                .attr("stroke-opacity", 0.6)
+                .selectAll("line")
+                .data(links)
+                .join("line")
+                .attr("stroke-width", (d) => d.value * 10);
+
+            const node = g
+                .append("g")
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1.5)
+                .selectAll("circle")
+                .data(memoizedNodes)
+                .join("circle")
+                .attr("r", 5)
+                .attr("fill", "#000");
+
+            const label = g
+                .append("g")
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 14)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "middle")
+                .selectAll("text")
+                .data(memoizedNodes)
+                .join("text")
+                .text((d) => d.name);
+
+            simulationRef.current.on("tick", () => {
+                link.attr("x1", (d) => getLinkValue(d, "source", "x"))
+                    .attr("y1", (d) => getLinkValue(d, "source", "y"))
+                    .attr("x2", (d) => getLinkValue(d, "target", "x"))
+                    .attr("y2", (d) => getLinkValue(d, "target", "y"));
+
+                node.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
+
+                label.attr("x", (d) => d.x ?? 0).attr("y", (d) => d.y ?? 0);
+            });
         };
 
-        updateDimensions();
+        runSimulation();
 
-        window.addEventListener("resize", updateDimensions);
+        window.addEventListener("resize", runSimulation);
 
         return () => {
-            window.removeEventListener("resize", updateDimensions);
+            window.removeEventListener("resize", runSimulation);
+            simulationRef.current?.stop();
+            svgRef.current?.remove();
         };
-    }, [height]);
-
-    useEffect(() => {
-        const simulation = d3
-            .forceSimulation(nodes)
-            .force("charge", d3.forceManyBody().strength(-2000))
-            .force("collide", d3.forceCollide(6))
-            .force(
-                "link",
-                d3
-                    .forceLink(links)
-                    .id((d) => (d as any).id)
-                    .strength((_, i) => links[i]?.value ?? 1),
-            )
-
-            .force(
-                "center",
-                d3.forceCenter(dimensions.width / 2, dimensions.height / 2),
-            );
-
-        const svg = d3
-            .select(canvasRef.current)
-            .append("svg")
-            .attr("viewBox", [0, 0, dimensions.width, dimensions.height]);
-
-        const g = svg.append("g");
-
-        const link = g
-            .append("g")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6)
-            .selectAll("line")
-            .data(links)
-            .join("line")
-            .attr("stroke-width", (d) => d.value * 100);
-
-        const node = g
-            .append("g")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
-            .selectAll("circle")
-            .data(nodes)
-            .join("circle")
-            .attr("r", 5)
-            .attr("fill", "#000");
-
-        const label = g
-            .append("g")
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 14)
-            .attr("fill", "currentColor")
-            .attr("text-anchor", "middle")
-            .selectAll("text")
-            .data(nodes)
-            .join("text")
-            .text((d) => d.name);
-
-        simulation.on("tick", () => {
-            link.attr("x1", (d) => getLinkValue(d, "source", "x"))
-                .attr("y1", (d) => getLinkValue(d, "source", "y"))
-                .attr("x2", (d) => getLinkValue(d, "target", "x"))
-                .attr("y2", (d) => getLinkValue(d, "target", "y"));
-
-            node.attr("cx", (d) => d.x ?? 0).attr("cy", (d) => d.y ?? 0);
-
-            label.attr("x", (d) => d.x ?? 0).attr("y", (d) => d.y ?? 0);
-        });
-
-        return () => {
-            simulation.stop();
-            svg.remove();
-        };
-    }, [nodes, links, dimensions]);
+    }, [memoizedNodes, memoizedLinks, height]);
 
     return (
         <div ref={ref} className="h-screen w-full" style={{ height }}>

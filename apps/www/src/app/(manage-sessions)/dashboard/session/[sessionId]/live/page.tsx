@@ -2,10 +2,12 @@
 
 import { CurrentAnswerCount } from "~/components/manage-session/custom/current-answer-count";
 import { UpdateSessionStatusButton } from "~/components/session/update-status-button";
+import { SimilarityGraph } from "~/components/similarity/graph";
 import { Button } from "~/components/ui/button";
 import { Headline } from "~/components/ui/headline";
 import { InternalLinkButton } from "~/components/ui/link-button";
 import { useAdminSocket } from "~/contexts/admin-socket";
+import { useGetQuestionSimilarities } from "~/hooks/use-get-question-similarities";
 import { useGetSession } from "~/hooks/use-get-session";
 import { SESSION_STATUS } from "~/lib/session-status";
 
@@ -19,6 +21,8 @@ export default function SessionLivePage({
     const { nextQestion, closeQuestion, currentQuestion } = useAdminSocket();
 
     const sessionQuery = useGetSession(sessionId);
+
+    const similaritiesQuery = useGetQuestionSimilarities(currentQuestion?.id);
 
     if (sessionQuery.isLoading) {
         return <div>Loading...</div>;
@@ -79,12 +83,20 @@ export default function SessionLivePage({
 
                 <div className="flex items-center gap-4">
                     <span>Current Answer Count:</span>
+
                     <CurrentAnswerCount
                         sessionId={sessionId}
                         questionId={currentQuestion?.id}
                     />
                 </div>
             </div>
+
+            {similaritiesQuery.data && (
+                <SimilarityGraph
+                    nodes={similaritiesQuery.data.nodes}
+                    links={similaritiesQuery.data.links}
+                />
+            )}
         </div>
     );
 }

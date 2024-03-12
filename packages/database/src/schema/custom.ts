@@ -43,7 +43,7 @@ export const customQuestionOptions = pgTable("custom_question_options", {
 });
 
 export const customQuestionAnswer = pgTable(
-    "custom_question_answer",
+    "custom_question_answers",
     {
         id: uuid("id")
             .primaryKey()

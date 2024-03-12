@@ -203,7 +203,7 @@ export const spotifyRouter = createTRPCRouter({
                 );
 
                 const topArtists = topArtistsResponse.items.map((item) => {
-                    const id = item.uri;
+                    const id = item.id;
                     const name = item.name;
                     const image = item.images[0]?.url;
                     const popularity = item.popularity;

@@ -1,7 +1,7 @@
 "use client";
 
 import { SimilarityGraph } from "~/components/similarity/graph";
-import { api } from "~/trpc/react";
+import { useGetSessionSimilarities } from "~/hooks/use-get-session-similarities";
 
 export default function SessionGraphPage({
     params,
@@ -10,14 +10,7 @@ export default function SessionGraphPage({
 }) {
     const sessionId = params.sessionId;
 
-    const similaritiesQuery = api.similarity.getSessionSimilarities.useQuery(
-        {
-            sessionId,
-        },
-        {
-            staleTime: 1000 * 60,
-        },
-    );
+    const similaritiesQuery = useGetSessionSimilarities(sessionId);
 
     if (similaritiesQuery.isLoading) {
         return null;

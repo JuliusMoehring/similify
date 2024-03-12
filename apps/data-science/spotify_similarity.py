@@ -113,11 +113,11 @@ result_df["session_id"] = session_id
 with engine.connect() as connection:
 
     connection.execute(
-        text(f"DELETE FROM similarities WHERE session_id = '{session_id}';")
+        text(f"DELETE FROM attendee_similarities WHERE session_id = '{session_id}';")
     )
 
     result_df.to_sql(
-        "similarities",
+        "attendee_similarities",
         connection,
         if_exists="append",
         index=False,

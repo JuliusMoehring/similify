@@ -35,11 +35,20 @@ export default function Session({ params }: { params: { sessionId: string } }) {
         );
     }
 
-    if (sessionQuery.data.status !== SESSION_STATUS.IN_PROGRESS) {
+    if (sessionQuery.data.status === SESSION_STATUS.PLANNED) {
         return (
             <div className="flex h-full w-full flex-col items-center justify-center space-y-4 p-8 text-center">
                 <Headline tag="h1">Session has not started yet</Headline>
                 <p>Please wait for the host to start the session.</p>
+            </div>
+        );
+    }
+
+    if (sessionQuery.data.status === SESSION_STATUS.FINISHED) {
+        return (
+            <div className="flex h-full w-full flex-col items-center justify-center space-y-4 p-8 text-center">
+                <Headline tag="h1">Session ended</Headline>
+                <p>Thanks for participating in the session.</p>
             </div>
         );
     }

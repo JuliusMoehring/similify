@@ -1,10 +1,17 @@
 import { relations, sql } from "drizzle-orm";
-import { index, numeric, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+    doublePrecision,
+    index,
+    pgTable,
+    timestamp,
+    uuid,
+} from "drizzle-orm/pg-core";
 
+import { customQuestions } from "./custom";
 import { attendees, sessions } from "./session";
 
-export const similarities = pgTable(
-    "similarities",
+export const attendeeSimilarities = pgTable(
+    "attendee_similarities",
     {
         id: uuid("id")
             .primaryKey()
@@ -19,10 +26,7 @@ export const similarities = pgTable(
             .notNull()
             .references(() => attendees.id),
 
-        similarityValue: numeric("similarity_value", {
-            precision: 11,
-            scale: 10,
-        }).notNull(),
+        similarityValue: doublePrecision("similarity_value").notNull(),
 
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -34,17 +38,69 @@ export const similarities = pgTable(
     },
 );
 
-export const similarityRelations = relations(similarities, ({ one }) => ({
-    session: one(sessions, {
-        fields: [similarities.sessionId],
-        references: [sessions.id],
+export const customQuestionAnswerSimilarity = pgTable(
+    "custom_question_answer_similarity",
+    {
+        id: uuid("id")
+            .primaryKey()
+            .default(sql`gen_random_uuid()`),
+        sessionId: uuid("session_id")
+            .notNull()
+            .references(() => sessions.id),
+        questionId: uuid("question_id")
+            .notNull()
+            .references(() => customQuestions.id),
+
+        attendeeId: uuid("attendee_id")
+            .notNull()
+            .references(() => attendees.id),
+        similarAttendeeId: uuid("similar_attendee_id")
+            .notNull()
+            .references(() => attendees.id),
+
+        similarityValue: doublePrecision("similarity_value").notNull(),
+
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+);
+
+export const similarityRelations = relations(
+    attendeeSimilarities,
+    ({ one }) => ({
+        session: one(sessions, {
+            fields: [attendeeSimilarities.sessionId],
+            references: [sessions.id],
+        }),
+        attendee: one(attendees, {
+            fields: [attendeeSimilarities.attendeeId],
+            references: [attendees.id],
+        }),
+        similarAttendee: one(attendees, {
+            fields: [attendeeSimilarities.similarAttendeeId],
+            references: [attendees.id],
+        }),
     }),
-    attendee: one(attendees, {
-        fields: [similarities.attendeeId],
-        references: [attendees.id],
+);
+
+export const customQuestionAnswerSimilarityRelations = relations(
+    customQuestionAnswerSimilarity,
+    ({ one }) => ({
+        session: one(sessions, {
+            fields: [customQuestionAnswerSimilarity.sessionId],
+            references: [sessions.id],
+        }),
+        question: one(customQuestions, {
+            fields: [customQuestionAnswerSimilarity.questionId],
+            references: [customQuestions.id],
+        }),
+        attendee: one(attendees, {
+            fields: [customQuestionAnswerSimilarity.attendeeId],
+            references: [attendees.id],
+        }),
+        similarAttendee: one(attendees, {
+            fields: [customQuestionAnswerSimilarity.similarAttendeeId],
+            references: [attendees.id],
+        }),
     }),
-    similarAttendee: one(attendees, {
-        fields: [similarities.similarAttendeeId],
-        references: [attendees.id],
-    }),
-}));
+);
