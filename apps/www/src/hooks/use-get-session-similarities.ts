@@ -6,7 +6,7 @@ export function useGetSessionSimilarities(sessionId: string) {
             sessionId,
         },
         {
-            staleTime: 1000 * 60,
+            refetchInterval: 1000 * 5,
         },
     );
 

@@ -7,8 +7,8 @@ import { Button } from "~/components/ui/button";
 import { Headline } from "~/components/ui/headline";
 import { InternalLinkButton } from "~/components/ui/link-button";
 import { useAdminSocket } from "~/contexts/admin-socket";
-import { useGetQuestionSimilarities } from "~/hooks/use-get-question-similarities";
 import { useGetSession } from "~/hooks/use-get-session";
+import { useGetSessionSimilarities } from "~/hooks/use-get-session-similarities";
 import { SESSION_STATUS } from "~/lib/session-status";
 
 export default function SessionLivePage({
@@ -22,7 +22,7 @@ export default function SessionLivePage({
 
     const sessionQuery = useGetSession(sessionId);
 
-    const similaritiesQuery = useGetQuestionSimilarities(currentQuestion?.id);
+    const similaritiesQuery = useGetSessionSimilarities(sessionId);
 
     if (sessionQuery.isLoading) {
         return <div>Loading...</div>;
@@ -37,7 +37,7 @@ export default function SessionLivePage({
             <div className="flex h-full flex-col items-center justify-center">
                 <Headline tag="h1">Session is not live</Headline>
 
-                <p className="text-muted-foreground mt-2">
+                <p className="mt-2 text-muted-foreground">
                     Please go back to the session page
                 </p>
 

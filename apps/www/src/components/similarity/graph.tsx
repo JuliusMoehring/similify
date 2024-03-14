@@ -2,7 +2,7 @@
 
 import * as d3 from "d3";
 import { MD5 } from "object-hash";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { useCalculateHeight } from "~/hooks/use-calculate-height";
 
@@ -69,7 +69,9 @@ export function SimilarityGraph<N extends Node, L extends Link>({
                 .forceSimulation(memoizedNodes)
                 .force(
                     "charge",
-                    d3.forceManyBody().strength(Math.sqrt(minDimension) * -1),
+                    d3
+                        .forceManyBody()
+                        .strength(Math.sqrt(minDimension) * -1000),
                 )
                 .force("collide", d3.forceCollide(6))
                 .force(
@@ -82,10 +84,17 @@ export function SimilarityGraph<N extends Node, L extends Link>({
 
                 .force("center", d3.forceCenter(width / 2, height / 2));
 
+            const zoom = d3
+                .zoom()
+                .on("zoom", (event) =>
+                    d3.select("svg g").attr("transform", event.transform),
+                );
+
             svgRef.current = d3
                 .select(canvasRef.current)
                 .append("svg")
-                .attr("viewBox", [0, 0, width, height]);
+                .attr("viewBox", [0, 0, width, height])
+                .call(zoom);
 
             const g = svgRef.current.append("g");
 
@@ -140,7 +149,21 @@ export function SimilarityGraph<N extends Node, L extends Link>({
             simulationRef.current?.stop();
             svgRef.current?.remove();
         };
-    }, [memoizedNodes, memoizedLinks, height]);
+    }, [height]);
+
+    useEffect(() => {
+        if (!simulationRef.current) {
+            return;
+        }
+
+        simulationRef.current.force(
+            "link",
+            d3
+                .forceLink(memoizedLinks)
+                .id((d) => (d as any).id)
+                .strength((_, i) => memoizedLinks[i]?.value ?? 1),
+        );
+    }, [memoizedLinks]);
 
     return (
         <div ref={ref} className="h-screen w-full" style={{ height }}>

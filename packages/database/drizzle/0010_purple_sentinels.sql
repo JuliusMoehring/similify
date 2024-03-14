@@ -1,0 +1,2 @@
+DROP INDEX IF EXISTS "custom_question_answer_similarity_attendee_id_similar_attendee_id_index";--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "custom_question_answer_similarity_question_id_attendee_id_similar_attendee_id_index" ON "custom_question_answer_similarity" ("question_id","attendee_id","similar_attendee_id");

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { customQuestions, eq, sessions, and } from "database";
+import { and, customQuestions, eq, sessions } from "database";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";

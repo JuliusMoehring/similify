@@ -18,8 +18,10 @@ export const db = drizzle(sql, {
     },
 });
 
+export type DatabaseType = typeof db
+
+export * from "./schema/custom";
 export * from "./schema/session";
 export * from "./schema/spotify";
-export * from "./schema/custom";
 
 export * from "drizzle-orm";

@@ -1,0 +1,1075 @@
+{
+  "id": "7ed425c3-84db-406b-9aeb-2b356c223171",
+  "prevId": "2f4c05fa-d5a8-4c9e-b5bf-8d0e69fa66c7",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "custom_question_answers": {
+      "name": "custom_question_answers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer": {
+          "name": "answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "custom_question_answers_session_id_sessions_id_fk": {
+          "name": "custom_question_answers_session_id_sessions_id_fk",
+          "tableFrom": "custom_question_answers",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "custom_question_answers_question_id_custom_questions_id_fk": {
+          "name": "custom_question_answers_question_id_custom_questions_id_fk",
+          "tableFrom": "custom_question_answers",
+          "tableTo": "custom_questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "custom_question_answers_attendee_id_session_attendees_id_fk": {
+          "name": "custom_question_answers_attendee_id_session_attendees_id_fk",
+          "tableFrom": "custom_question_answers",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "custom_question_answers_session_id_question_id_attendee_id_unique": {
+          "name": "custom_question_answers_session_id_question_id_attendee_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "session_id",
+            "question_id",
+            "attendee_id"
+          ]
+        }
+      }
+    },
+    "custom_question_options": {
+      "name": "custom_question_options",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "option": {
+          "name": "option",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "custom_question_options_question_id_custom_questions_id_fk": {
+          "name": "custom_question_options_question_id_custom_questions_id_fk",
+          "tableFrom": "custom_question_options",
+          "tableTo": "custom_questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "custom_questions": {
+      "name": "custom_questions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "custom_questions_session_id_sessions_id_fk": {
+          "name": "custom_questions_session_id_sessions_id_fk",
+          "tableFrom": "custom_questions",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "session_attendees": {
+      "name": "session_attendees",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "session_idx": {
+          "name": "session_idx",
+          "columns": [
+            "session_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "session_attendees_session_id_name_unique": {
+          "name": "session_attendees_session_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "session_id",
+            "name"
+          ]
+        }
+      }
+    },
+    "sessions": {
+      "name": "sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "attendee_similarities": {
+      "name": "attendee_similarities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "similar_attendee_id": {
+          "name": "similar_attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "similarity_value": {
+          "name": "similarity_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "attendee_similarities_session_id_index": {
+          "name": "attendee_similarities_session_id_index",
+          "columns": [
+            "session_id"
+          ],
+          "isUnique": false
+        },
+        "attendee_similarities_attendee_id_similar_attendee_id_index": {
+          "name": "attendee_similarities_attendee_id_similar_attendee_id_index",
+          "columns": [
+            "attendee_id",
+            "similar_attendee_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "attendee_similarities_session_id_sessions_id_fk": {
+          "name": "attendee_similarities_session_id_sessions_id_fk",
+          "tableFrom": "attendee_similarities",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_similarities_attendee_id_session_attendees_id_fk": {
+          "name": "attendee_similarities_attendee_id_session_attendees_id_fk",
+          "tableFrom": "attendee_similarities",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_similarities_similar_attendee_id_session_attendees_id_fk": {
+          "name": "attendee_similarities_similar_attendee_id_session_attendees_id_fk",
+          "tableFrom": "attendee_similarities",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "similar_attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "custom_question_answer_similarity": {
+      "name": "custom_question_answer_similarity",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "similar_attendee_id": {
+          "name": "similar_attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "similarity_value": {
+          "name": "similarity_value",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "custom_question_answer_similarity_session_id_index": {
+          "name": "custom_question_answer_similarity_session_id_index",
+          "columns": [
+            "session_id"
+          ],
+          "isUnique": false
+        },
+        "custom_question_answer_similarity_question_id_index": {
+          "name": "custom_question_answer_similarity_question_id_index",
+          "columns": [
+            "question_id"
+          ],
+          "isUnique": false
+        },
+        "custom_question_answer_similarity_question_id_attendee_id_similar_attendee_id_index": {
+          "name": "custom_question_answer_similarity_question_id_attendee_id_similar_attendee_id_index",
+          "columns": [
+            "question_id",
+            "attendee_id",
+            "similar_attendee_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "custom_question_answer_similarity_session_id_sessions_id_fk": {
+          "name": "custom_question_answer_similarity_session_id_sessions_id_fk",
+          "tableFrom": "custom_question_answer_similarity",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "custom_question_answer_similarity_question_id_custom_questions_id_fk": {
+          "name": "custom_question_answer_similarity_question_id_custom_questions_id_fk",
+          "tableFrom": "custom_question_answer_similarity",
+          "tableTo": "custom_questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "custom_question_answer_similarity_attendee_id_session_attendees_id_fk": {
+          "name": "custom_question_answer_similarity_attendee_id_session_attendees_id_fk",
+          "tableFrom": "custom_question_answer_similarity",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "custom_question_answer_similarity_similar_attendee_id_session_attendees_id_fk": {
+          "name": "custom_question_answer_similarity_similar_attendee_id_session_attendees_id_fk",
+          "tableFrom": "custom_question_answer_similarity",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "similar_attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "attendee_to_spotify_artists": {
+      "name": "attendee_to_spotify_artists",
+      "schema": "",
+      "columns": {
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "artist_id": {
+          "name": "artist_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "attendee_to_spotify_artists_attendee_id_index": {
+          "name": "attendee_to_spotify_artists_attendee_id_index",
+          "columns": [
+            "attendee_id"
+          ],
+          "isUnique": false
+        },
+        "attendee_to_spotify_artists_artist_id_index": {
+          "name": "attendee_to_spotify_artists_artist_id_index",
+          "columns": [
+            "artist_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "attendee_to_spotify_artists_attendee_id_session_attendees_id_fk": {
+          "name": "attendee_to_spotify_artists_attendee_id_session_attendees_id_fk",
+          "tableFrom": "attendee_to_spotify_artists",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_artists_session_id_sessions_id_fk": {
+          "name": "attendee_to_spotify_artists_session_id_sessions_id_fk",
+          "tableFrom": "attendee_to_spotify_artists",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_artists_artist_id_spotify_artists_id_fk": {
+          "name": "attendee_to_spotify_artists_artist_id_spotify_artists_id_fk",
+          "tableFrom": "attendee_to_spotify_artists",
+          "tableTo": "spotify_artists",
+          "columnsFrom": [
+            "artist_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "attendee_to_spotify_artists_attendee_id_artist_id_unique": {
+          "name": "attendee_to_spotify_artists_attendee_id_artist_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "attendee_id",
+            "artist_id"
+          ]
+        }
+      }
+    },
+    "attendee_to_spotify_genres": {
+      "name": "attendee_to_spotify_genres",
+      "schema": "",
+      "columns": {
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "genre_id": {
+          "name": "genre_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "attendee_to_spotify_genres_attendee_id_index": {
+          "name": "attendee_to_spotify_genres_attendee_id_index",
+          "columns": [
+            "attendee_id"
+          ],
+          "isUnique": false
+        },
+        "attendee_to_spotify_genres_genre_id_index": {
+          "name": "attendee_to_spotify_genres_genre_id_index",
+          "columns": [
+            "genre_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "attendee_to_spotify_genres_attendee_id_session_attendees_id_fk": {
+          "name": "attendee_to_spotify_genres_attendee_id_session_attendees_id_fk",
+          "tableFrom": "attendee_to_spotify_genres",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_genres_session_id_sessions_id_fk": {
+          "name": "attendee_to_spotify_genres_session_id_sessions_id_fk",
+          "tableFrom": "attendee_to_spotify_genres",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_genres_genre_id_spotify_genres_id_fk": {
+          "name": "attendee_to_spotify_genres_genre_id_spotify_genres_id_fk",
+          "tableFrom": "attendee_to_spotify_genres",
+          "tableTo": "spotify_genres",
+          "columnsFrom": [
+            "genre_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "attendee_to_spotify_genres_attendee_id_genre_id_unique": {
+          "name": "attendee_to_spotify_genres_attendee_id_genre_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "attendee_id",
+            "genre_id"
+          ]
+        }
+      }
+    },
+    "attendee_to_spotify_tracks": {
+      "name": "attendee_to_spotify_tracks",
+      "schema": "",
+      "columns": {
+        "attendee_id": {
+          "name": "attendee_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "track_id": {
+          "name": "track_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "attendee_to_spotify_tracks_attendee_id_index": {
+          "name": "attendee_to_spotify_tracks_attendee_id_index",
+          "columns": [
+            "attendee_id"
+          ],
+          "isUnique": false
+        },
+        "attendee_to_spotify_tracks_track_id_index": {
+          "name": "attendee_to_spotify_tracks_track_id_index",
+          "columns": [
+            "track_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "attendee_to_spotify_tracks_attendee_id_session_attendees_id_fk": {
+          "name": "attendee_to_spotify_tracks_attendee_id_session_attendees_id_fk",
+          "tableFrom": "attendee_to_spotify_tracks",
+          "tableTo": "session_attendees",
+          "columnsFrom": [
+            "attendee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_tracks_session_id_sessions_id_fk": {
+          "name": "attendee_to_spotify_tracks_session_id_sessions_id_fk",
+          "tableFrom": "attendee_to_spotify_tracks",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "attendee_to_spotify_tracks_track_id_spotify_tracks_id_fk": {
+          "name": "attendee_to_spotify_tracks_track_id_spotify_tracks_id_fk",
+          "tableFrom": "attendee_to_spotify_tracks",
+          "tableTo": "spotify_tracks",
+          "columnsFrom": [
+            "track_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "attendee_to_spotify_tracks_attendee_id_track_id_unique": {
+          "name": "attendee_to_spotify_tracks_attendee_id_track_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "attendee_id",
+            "track_id"
+          ]
+        }
+      }
+    },
+    "spotify_artists": {
+      "name": "spotify_artists",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "popularity": {
+          "name": "popularity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "spotify_genres": {
+      "name": "spotify_genres",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "spotify_genres_name_unique": {
+          "name": "spotify_genres_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
+    },
+    "spotify_tracks": {
+      "name": "spotify_tracks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "popularity": {
+          "name": "popularity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -4,6 +4,7 @@ import {
     index,
     pgTable,
     timestamp,
+    uniqueIndex,
     uuid,
 } from "drizzle-orm/pg-core";
 
@@ -34,6 +35,10 @@ export const attendeeSimilarities = pgTable(
     (table) => {
         return {
             sessionIdx: index().on(table.sessionId),
+            uniqueCombinationIdx: uniqueIndex().on(
+                table.attendeeId,
+                table.similarAttendeeId,
+            ),
         };
     },
 );
@@ -62,6 +67,17 @@ export const customQuestionAnswerSimilarity = pgTable(
 
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => {
+        return {
+            sessionIdx: index().on(table.sessionId),
+            questionIdx: index().on(table.questionId),
+            uniqueCombinationIdx: uniqueIndex().on(
+                table.questionId,
+                table.attendeeId,
+                table.similarAttendeeId,
+            ),
+        };
     },
 );
 

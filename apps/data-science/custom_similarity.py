@@ -7,10 +7,25 @@ import numpy as np
 
 load_dotenv()
 
-engine = create_engine(os.getenv("POSTGRES_URL"))
+POSTGRES_URL = os.getenv("POSTGRES_URL")
 
+if POSTGRES_URL is None:
+    raise ValueError("POSTGRES_URL environment variable not set")
 
-question_id = "0a8acd27-cf2f-4c3f-8244-c94a7cad10ed"
+engine = create_engine(POSTGRES_URL)
+
+"""
+d6f32693-fef5-41fa-8624-95f66c489761
+9a54ca96-538a-4b44-b31c-16d33ef85926
+0a8acd27-cf2f-4c3f-8244-c94a7cad10ed
+596ad36a-fdcb-47c5-97ea-ceddccbb16e9
+8dbb6ee9-a95a-4298-8ade-9405d9c586b8
+c3a1a5f3-251e-402a-9b58-430d2872f1a7
+0beb4440-d78f-4400-a624-c4441633da8a
+fc8dca05-fd4b-439b-bd40-a83abc43012c
+"""
+
+question_id = "9a54ca96-538a-4b44-b31c-16d33ef85926"
 
 
 class CustomSimilarity:
@@ -21,7 +36,7 @@ class CustomSimilarity:
     question: pd.Series
     answer_options: pd.Series | None = None
     answers: pd.DataFrame
-    attendees: pd.Series
+    attendees: np.ndarray
 
     def __init__(self, question_id: str):
         self.question_id = question_id
@@ -52,9 +67,13 @@ class CustomSimilarity:
             if self.type != "free-text":
                 self.answer_options = self.__get_answer_options()
 
-    def __calculate_similarity(self, data_frame: pd.DataFrame):
+    def __calculate_similarity(
+        self,
+        X: pd.DataFrame,
+        Y: pd.DataFrame | None = None,
+    ):
 
-        similarities = cosine_similarity(data_frame)
+        similarities = cosine_similarity(X, Y)
 
         return pd.DataFrame(
             data=similarities, index=self.attendees, columns=self.attendees
@@ -115,18 +134,10 @@ class CustomSimilarity:
 
             print("Similarity data inserted into database")
 
-    def __summarize(self):
-        from gensim.summarization.summarizer import summarize
-
-        for answer in self.answers["answer"]:
-            print(summarize(answer, word_count=1))
-
-    def __calculate_free_text_similarity(self):
+    def __calculate_free_text_similarity_embedding(self):
         from openai import OpenAI
 
         OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-        self.__summarize()
 
         client = OpenAI(
             api_key=OPENAI_API_KEY,
@@ -144,6 +155,21 @@ class CustomSimilarity:
         data_frame = pd.DataFrame(index=self.attendees, data=embeddings)
 
         similarity = self.__calculate_similarity(data_frame)
+
+        result = self.__get_attendee_similarities(similarity)
+
+        self.__write_to_database(result)
+
+    def __calculate_free_text_similarity(self):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+
+        vectorizer = TfidfVectorizer()
+
+        corpus = self.answers["answer"].str.lower()
+
+        tf_idf_matrix = vectorizer.fit_transform(corpus)
+
+        similarity = self.__calculate_similarity(tf_idf_matrix, tf_idf_matrix)
 
         result = self.__get_attendee_similarities(similarity)
 
@@ -203,21 +229,28 @@ class CustomSimilarity:
 
             overall_similarity["session_id"] = self.session_id
 
-            connection.execute(
-                text(
-                    f"DELETE FROM attendee_similarities WHERE session_id = '{self.session_id}';"
+            for _, row in overall_similarity.iterrows():
+
+                database_entry = connection.execute(
+                    text(
+                        f"SELECT id FROM attendee_similarities AS ats WHERE ats.attendee_id = '{row['attendee_id']}' AND ats.similar_attendee_id = '{row['similar_attendee_id']}'"
+                    )
+                ).fetchone()
+
+                if database_entry is None:
+                    connection.execute(
+                        text(
+                            f"INSERT INTO attendee_similarities (attendee_id, similar_attendee_id, similarity_value, session_id) VALUES ('{row['attendee_id']}', '{row['similar_attendee_id']}', {row['similarity_value']}, '{self.session_id}');"
+                        )
+                    )
+
+                    continue
+
+                connection.execute(
+                    text(
+                        f"UPDATE attendee_similarities SET similarity_value = {row['similarity_value']} WHERE id = '{database_entry[0]}';"
+                    )
                 )
-            )
-
-            overall_similarity.to_sql(
-                "attendee_similarities",
-                connection,
-                if_exists="append",
-                index=False,
-                method="multi",
-            )
-
-            connection.commit()
 
     def calculate_similarity(self):
         if self.type == "free-text":
